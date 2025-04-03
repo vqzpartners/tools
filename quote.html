@@ -85,6 +85,15 @@
       background-color: #3d3d3d;
     }
     
+    .button.danger {
+      background-color: #5e2121;
+      border-color: #771c1c;
+    }
+    
+    .button.danger:hover {
+      background-color: #771c1c;
+    }
+    
     .buttons-row {
       display: flex;
       gap: 10px;
@@ -300,6 +309,21 @@
       text-align: center;
     }
     
+    /* Color picker styles */
+    .color-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .color-preview {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      border: 1px solid #444;
+      cursor: pointer;
+    }
+    
     /* Mobile responsive styles */
     @media (max-width: 768px) {
       .main-content {
@@ -353,6 +377,24 @@
         </div>
         
         <div class="form-group">
+          <label>Background Color:</label>
+          <div class="color-picker-container">
+            <div class="color-preview" id="bgColorPreview" style="background-color: #000000;"></div>
+            <input type="color" id="bgColorPicker" value="#000000" class="hidden">
+            <span id="bgColorValue">#000000</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Text Color:</label>
+          <div class="color-picker-container">
+            <div class="color-preview" id="textColorPreview" style="background-color: #ffffff;"></div>
+            <input type="color" id="textColorPicker" value="#ffffff" class="hidden">
+            <span id="textColorValue">#ffffff</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
           <label class="verified-toggle">
             <span>Show verified badge</span>
             <label class="toggle-switch">
@@ -372,6 +414,7 @@
         
         <div class="buttons-row">
           <button id="downloadBtn" class="button">Download Image</button>
+          <button id="clearDataBtn" class="button danger">Clear All Data</button>
         </div>
       </div>
       
@@ -411,6 +454,7 @@
     const quoteInput = document.getElementById('quoteInput');
     const verifiedCheckbox = document.getElementById('verifiedCheckbox');
     const downloadBtn = document.getElementById('downloadBtn');
+    const clearDataBtn = document.getElementById('clearDataBtn');
     const previewPhoto = document.getElementById('previewPhoto');
     const previewName = document.getElementById('previewName');
     const previewUsername = document.getElementById('previewUsername');
@@ -421,9 +465,19 @@
     const increaseFontBtn = document.getElementById('increaseFontBtn');
     const decreaseFontBtn = document.getElementById('decreaseFontBtn');
     const fontSizeValue = document.getElementById('fontSizeValue');
+    const bgColorPicker = document.getElementById('bgColorPicker');
+    const bgColorPreview = document.getElementById('bgColorPreview');
+    const bgColorValue = document.getElementById('bgColorValue');
+    const textColorPicker = document.getElementById('textColorPicker');
+    const textColorPreview = document.getElementById('textColorPreview');
+    const textColorValue = document.getElementById('textColorValue');
     
     // Default font size
     let currentFontSize = 22;
+    
+    // Default colors
+    let bgColor = '#000000';
+    let textColor = '#ffffff';
     
     // Load saved data from localStorage
     window.addEventListener('DOMContentLoaded', () => {
@@ -434,6 +488,8 @@
       const savedVerified = localStorage.getItem('quoteVerified') === 'true';
       const savedAspectRatio = localStorage.getItem('quoteAspectRatio') || 'portrait';
       const savedFontSize = localStorage.getItem('quoteFontSize') || '22';
+      const savedBgColor = localStorage.getItem('quoteBgColor') || '#000000';
+      const savedTextColor = localStorage.getItem('quoteTextColor') || '#ffffff';
       
       if (savedName) nameInput.value = savedName;
       if (savedUsername) usernameInput.value = savedUsername;
@@ -452,6 +508,11 @@
       
       // Set aspect ratio
       setAspectRatio(savedAspectRatio);
+      
+      // Set colors
+      bgColor = savedBgColor;
+      textColor = savedTextColor;
+      updateColorPickers();
       
       updatePreview();
     });
@@ -480,10 +541,124 @@
       }
     });
     
+    // Clear data button
+    clearDataBtn.addEventListener('click', clearAllData);
+    
+    // Color picker functionality
+    bgColorPreview.addEventListener('click', () => {
+      bgColorPicker.click();
+    });
+    
+    bgColorPicker.addEventListener('input', (e) => {
+      bgColor = e.target.value;
+      updateColorPickers();
+      saveAndUpdateColors();
+    });
+    
+    textColorPreview.addEventListener('click', () => {
+      textColorPicker.click();
+    });
+    
+    textColorPicker.addEventListener('input', (e) => {
+      textColor = e.target.value;
+      updateColorPickers();
+      saveAndUpdateColors();
+    });
+    
     function updateFontSize() {
       fontSizeValue.textContent = currentFontSize;
       previewQuote.style.fontSize = `${currentFontSize}px`;
       localStorage.setItem('quoteFontSize', currentFontSize);
+    }
+    
+    function updateColorPickers() {
+      // Update color picker inputs
+      bgColorPicker.value = bgColor;
+      textColorPicker.value = textColor;
+      
+      // Update color previews
+      bgColorPreview.style.backgroundColor = bgColor;
+      textColorPreview.style.backgroundColor = textColor;
+      
+      // Update color value text
+      bgColorValue.textContent = bgColor;
+      textColorValue.textContent = textColor;
+      
+      // Update preview container
+      previewContainer.style.backgroundColor = bgColor;
+      previewQuote.style.color = textColor;
+      previewName.style.color = textColor;
+      previewUsername.style.color = adjustBrightness(textColor, -30);
+    }
+    
+    function saveAndUpdateColors() {
+      localStorage.setItem('quoteBgColor', bgColor);
+      localStorage.setItem('quoteTextColor', textColor);
+      updateColorPickers();
+    }
+    
+    // Helper function to adjust color brightness for username
+    function adjustBrightness(hex, percent) {
+      // Convert hex to RGB
+      hex = hex.replace(/^\s*#|\s*$/g, '');
+      if(hex.length == 3) {
+        hex = hex.replace(/(.)/g, '$1$1');
+      }
+      
+      let r = parseInt(hex.substring(0, 2), 16);
+      let g = parseInt(hex.substring(2, 4), 16);
+      let b = parseInt(hex.substring(4, 6), 16);
+      
+      // Adjust brightness
+      r = Math.max(0, Math.min(255, r + percent));
+      g = Math.max(0, Math.min(255, g + percent));
+      b = Math.max(0, Math.min(255, b + percent));
+      
+      // Convert back to hex
+      return "#" + 
+        ((1 << 24) + (r << 16) + (g << 8) + b)
+          .toString(16).slice(1);
+    }
+    
+    function clearAllData() {
+      if (confirm("Are you sure you want to clear all data? This can't be undone.")) {
+        // Clear localStorage
+        localStorage.removeItem('quoteName');
+        localStorage.removeItem('quoteUsername');
+        localStorage.removeItem('quotePhotoData');
+        localStorage.removeItem('quoteText');
+        localStorage.removeItem('quoteVerified');
+        localStorage.removeItem('quoteFontSize');
+        localStorage.removeItem('quoteAspectRatio');
+        localStorage.removeItem('quoteBgColor');
+        localStorage.removeItem('quoteTextColor');
+        
+        // Reset form fields
+        nameInput.value = '';
+        usernameInput.value = '';
+        quoteInput.value = '';
+        verifiedCheckbox.checked = false;
+        profilePreview.style.backgroundImage = '';
+        previewPhoto.style.backgroundImage = '';
+        
+        // Reset to default values
+        currentFontSize = 22;
+        fontSizeValue.textContent = currentFontSize;
+        previewQuote.style.fontSize = `${currentFontSize}px`;
+        
+        // Reset colors
+        bgColor = '#000000';
+        textColor = '#ffffff';
+        updateColorPickers();
+        
+        // Reset aspect ratio
+        setAspectRatio('portrait');
+        
+        // Update preview
+        updatePreview();
+        
+        alert("All data has been cleared.");
+      }
     }
     
     // Real-time preview updates for all inputs
@@ -636,7 +811,7 @@
       // Setup options for better quality
       const options = {
         scale: scaleFactor,
-        backgroundColor: "#000",
+        backgroundColor: bgColor,
         logging: false,
         useCORS: true,
         allowTaint: true,
@@ -677,13 +852,13 @@
         const username = usernameInput.value || 'quote';
         link.download = `${username.replace('@', '')}-${timestamp}.jpg`;
         
-        // Trigger download
+// Trigger download
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      }).catch(err => {
-        console.error("Error generating image:", err);
-        alert("There was an error generating your image. Please try again.");
+      }).catch(error => {
+        console.error('Error generating image:', error);
+        alert('There was an error generating your image. Please try again.');
         previewContainer.classList.remove('rendering');
       });
     }
