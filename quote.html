@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quote Image Generator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .editor-container {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #bbb;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #2d2d2d;
+      color: #e0e0e0;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .button {
+      padding: 10px 20px;
+      background: #2d2d2d;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .button:hover {
+      background-color: #3d3d3d;
+    }
+    
+    .buttons-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .photo-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .profile-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #333;
+      margin-bottom: 10px;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+      border: 3px solid #444;
+    }
+    
+    .preview-container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .profile-area {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .preview-name {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .verified-badge {
+      width: 18px;
+      height: 18px;
+      fill: #8e8e8e;
+    }
+    
+    .preview-username {
+      color: #777;
+      font-size: 15px;
+    }
+    
+    .preview-photo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #333;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .quote-text {
+      padding: 0 16px 16px;
+      font-size: 22px;
+      line-height: 1.3;
+      white-space: pre-wrap;
+    }
+    
+    #imageOutput {
+      display: none;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .quote-text {
+        font-size: 18px;
+      }
+    }
+
+    h1 {
+      text-align: center;
+      color: #bbb;
+      font-weight: 400;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quote Generator</h1>
+    
+    <div class="editor-container">
+      <div class="form-group photo-upload">
+        <div id="profilePreview" class="profile-preview"></div>
+        <input type="file" id="photoInput" accept="image/*" class="hidden">
+        <button class="button" id="uploadPhotoBtn">Upload Profile Photo</button>
+      </div>
+      
+      <div class="form-group">
+        <label for="nameInput">Name:</label>
+        <input type="text" id="nameInput" placeholder="Your name">
+      </div>
+      
+      <div class="form-group">
+        <label for="usernameInput">Username:</label>
+        <input type="text" id="usernameInput" placeholder="@username">
+      </div>
+      
+      <div class="form-group">
+        <label for="quoteInput">Quote:</label>
+        <textarea id="quoteInput" placeholder="Your quote goes here..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="verifiedCheckbox">
+          Show verified badge
+        </label>
+      </div>
+      
+      <div class="buttons-row">
+        <button id="downloadBtn" class="button">Download Image</button>
+      </div>
+    </div>
+    
+    <div class="preview-container" id="previewContainer">
+      <div class="profile-area">
+        <div class="preview-photo" id="previewPhoto"></div>
+        <div class="profile-info">
+          <div class="preview-name">
+            <span id="previewName">Your Name</span>
+            <svg class="verified-badge" id="verifiedBadge" viewBox="0 0 24 24" style="display: none;">
+              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/>
+            </svg>
+          </div>
+          <div class="preview-username" id="previewUsername">@username</div>
+        </div>
+      </div>
+      <div class="quote-text" id="previewQuote">
+        Your quote will appear here. Make it something memorable!
+      </div>
+    </div>
+    
+    <div id="imageOutput"></div>
+    <canvas id="canvas" style="display:none;"></canvas>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    // DOM Elements
+    const profilePreview = document.getElementById('profilePreview');
+    const photoInput = document.getElementById('photoInput');
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+    const nameInput = document.getElementById('nameInput');
+    const usernameInput = document.getElementById('usernameInput');
+    const quoteInput = document.getElementById('quoteInput');
+    const verifiedCheckbox = document.getElementById('verifiedCheckbox');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const previewPhoto = document.getElementById('previewPhoto');
+    const previewName = document.getElementById('previewName');
+    const previewUsername = document.getElementById('previewUsername');
+    const previewQuote = document.getElementById('previewQuote');
+    const verifiedBadge = document.getElementById('verifiedBadge');
+    const previewContainer = document.getElementById('previewContainer');
+    
+    // Load saved data from localStorage
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedName = localStorage.getItem('quoteName');
+      const savedUsername = localStorage.getItem('quoteUsername');
+      const savedPhotoData = localStorage.getItem('quotePhotoData');
+      const savedQuote = localStorage.getItem('quoteText');
+      const savedVerified = localStorage.getItem('quoteVerified') === 'true';
+      
+      if (savedName) nameInput.value = savedName;
+      if (savedUsername) usernameInput.value = savedUsername;
+      if (savedQuote) quoteInput.value = savedQuote;
+      if (savedVerified) verifiedCheckbox.checked = true;
+      
+      if (savedPhotoData) {
+        profilePreview.style.backgroundImage = `url(${savedPhotoData})`;
+        previewPhoto.style.backgroundImage = `url(${savedPhotoData})`;
+      }
+      
+      updatePreview();
+    });
+    
+    // Event Listeners
+    uploadPhotoBtn.addEventListener('click', () => {
+      photoInput.click();
+    });
+    
+    profilePreview.addEventListener('click', () => {
+      photoInput.click();
+    });
+    
+    // Real-time preview updates for all inputs
+    photoInput.addEventListener('change', handlePhotoUpload);
+    nameInput.addEventListener('input', updatePreview);
+    usernameInput.addEventListener('input', updatePreview);
+    quoteInput.addEventListener('input', updatePreview);
+    verifiedCheckbox.addEventListener('change', updatePreview);
+    downloadBtn.addEventListener('click', downloadImage);
+    
+    // Handle profile photo upload
+    function handlePhotoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const photoDataUrl = event.target.result;
+        profilePreview.style.backgroundImage = `url(${photoDataUrl})`;
+        previewPhoto.style.backgroundImage = `url(${photoDataUrl})`;
+        
+        // Save to localStorage
+        localStorage.setItem('quotePhotoData', photoDataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    // Update preview with user inputs
+    function updatePreview() {
+      const name = nameInput.value || 'Your Name';
+      const username = usernameInput.value || '@username';
+      const quote = quoteInput.value || 'Your quote will appear here. Make it something memorable!';
+      const verified = verifiedCheckbox.checked;
+      
+      previewName.textContent = name;
+      previewUsername.textContent = username.startsWith('@') ? username : '@' + username;
+      previewQuote.textContent = quote;
+      verifiedBadge.style.display = verified ? 'inline-block' : 'none';
+      
+      // Save to localStorage
+      localStorage.setItem('quoteName', name);
+      localStorage.setItem('quoteUsername', username);
+      localStorage.setItem('quoteText', quote);
+      localStorage.setItem('quoteVerified', verified);
+    }
+    
+    // Generate and download image
+    function downloadImage() {
+      const scale = 2; // Higher scale for better quality
+      
+      html2canvas(previewContainer, {
+        scale: scale,
+        backgroundColor: "#000",
+        logging: false,
+        useCORS: true
+      }).then(canvas => {
+        // Convert to JPG
+        const imgData = canvas.toDataURL('image/jpeg', 0.9);
+        
+        // Create download link
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = 'quote-image.jpg';
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+  </script>
+</body>
+</html>
