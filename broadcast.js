@@ -29,6 +29,12 @@ const Broadcast = (function() {
      */
     const notices = [
         {
+            id: 7, 
+            message: "Distrubute your X posts easily with our Quote Generator", 
+            importance: "update", 
+            timestamp: "2025-04-02T02:42:00Z"
+        },
+        {
             id: 6, 
             message: "Verify a domain SSL status, without getting cached. (REMOVED)", 
             importance: "warning", 
