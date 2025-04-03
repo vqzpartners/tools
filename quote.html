@@ -170,6 +170,15 @@
       font-size: 22px;
       line-height: 1.3;
       white-space: pre-wrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: calc(100% - 80px); /* Adjust for profile area height */
+    }
+    
+    .quote-text-inner {
+      max-width: 100%;
+      word-break: break-word;
     }
     
     #imageOutput {
@@ -259,6 +268,34 @@
       margin-top: 10px;
     }
     
+    .font-size-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .font-size-btn {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      background: #2d2d2d;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .font-size-btn:hover {
+      background: #3d3d3d;
+    }
+    
+    .font-size-value {
+      min-width: 30px;
+      text-align: center;
+    }
+    
     /* Mobile responsive styles */
     @media (max-width: 768px) {
       .main-content {
@@ -307,6 +344,15 @@
         </div>
         
         <div class="form-group">
+          <label>Font Size:</label>
+          <div class="font-size-controls">
+            <div class="font-size-btn" id="decreaseFontBtn">-</div>
+            <div class="font-size-value" id="fontSizeValue">22</div>
+            <div class="font-size-btn" id="increaseFontBtn">+</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
           <label class="verified-toggle">
             <span>Show verified badge</span>
             <label class="toggle-switch">
@@ -344,7 +390,7 @@
             </div>
           </div>
           <div class="quote-text" id="previewQuote">
-            Your quote will appear here. Make it something memorable!
+            <div class="quote-text-inner">Your quote will appear here. Make it something memorable!</div>
           </div>
         </div>
       </div>
@@ -372,6 +418,12 @@
     const verifiedBadge = document.getElementById('verifiedBadge');
     const previewContainer = document.getElementById('previewContainer');
     const aspectRatioOptions = document.querySelectorAll('.aspect-ratio-option');
+    const increaseFontBtn = document.getElementById('increaseFontBtn');
+    const decreaseFontBtn = document.getElementById('decreaseFontBtn');
+    const fontSizeValue = document.getElementById('fontSizeValue');
+    
+    // Default font size
+    let currentFontSize = 22;
     
     // Load saved data from localStorage
     window.addEventListener('DOMContentLoaded', () => {
@@ -381,6 +433,7 @@
       const savedQuote = localStorage.getItem('quoteText');
       const savedVerified = localStorage.getItem('quoteVerified') === 'true';
       const savedAspectRatio = localStorage.getItem('quoteAspectRatio') || 'portrait';
+      const savedFontSize = localStorage.getItem('quoteFontSize') || '22';
       
       if (savedName) nameInput.value = savedName;
       if (savedUsername) usernameInput.value = savedUsername;
@@ -391,6 +444,11 @@
         profilePreview.style.backgroundImage = `url(${savedPhotoData})`;
         previewPhoto.style.backgroundImage = `url(${savedPhotoData})`;
       }
+      
+      // Set font size
+      currentFontSize = parseInt(savedFontSize);
+      fontSizeValue.textContent = currentFontSize;
+      previewQuote.querySelector('.quote-text-inner').style.fontSize = `${currentFontSize}px`;
       
       // Set aspect ratio
       setAspectRatio(savedAspectRatio);
@@ -406,6 +464,27 @@
     profilePreview.addEventListener('click', () => {
       photoInput.click();
     });
+    
+    // Font size controls
+    increaseFontBtn.addEventListener('click', () => {
+      if (currentFontSize < 40) {
+        currentFontSize += 2;
+        updateFontSize();
+      }
+    });
+    
+    decreaseFontBtn.addEventListener('click', () => {
+      if (currentFontSize > 16) {
+        currentFontSize -= 2;
+        updateFontSize();
+      }
+    });
+    
+    function updateFontSize() {
+      fontSizeValue.textContent = currentFontSize;
+      previewQuote.querySelector('.quote-text-inner').style.fontSize = `${currentFontSize}px`;
+      localStorage.setItem('quoteFontSize', currentFontSize);
+    }
     
     // Real-time preview updates for all inputs
     photoInput.addEventListener('change', handlePhotoUpload);
@@ -451,52 +530,56 @@
       }
     }
     
-    // Handle profile photo upload
+    // Enhanced photo upload function to maintain quality
     function handlePhotoUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
+      
+      // Check if file is an image
+      if (!file.type.match('image.*')) {
+        alert('Please select an image file');
+        return;
+      }
       
       const reader = new FileReader();
       reader.onload = function(event) {
         const photoDataUrl = event.target.result;
         
-        // Create a new Image to get dimensions for proper scaling
+        // Create a new Image to get dimensions
         const img = new Image();
         img.onload = function() {
-          // Process image to maintain quality
+          // Use offscreen canvas for better quality processing
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
-          // Set canvas to a high resolution
-          const size = 400; // High resolution avatar
+          // Set high resolution for the profile image
+          const size = 800; // Higher resolution for better quality
           canvas.width = size;
           canvas.height = size;
           
-          // Draw the image with smoothing
+          // Apply high quality settings
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           
-          // Draw image preserving aspect ratio
+          // Calculate cropping to make image square while preserving aspect ratio
           const aspectRatio = img.width / img.height;
-          let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+          let srcX = 0, srcY = 0, srcWidth = img.width, srcHeight = img.height;
           
           if (aspectRatio > 1) {
-            // Landscape image
-            drawHeight = size;
-            drawWidth = size * aspectRatio;
-            offsetX = -(drawWidth - size) / 2;
-          } else {
-            // Portrait image
-            drawWidth = size;
-            drawHeight = size / aspectRatio;
-            offsetY = -(drawHeight - size) / 2;
+            // Landscape image: crop sides
+            srcWidth = img.height;
+            srcX = (img.width - srcWidth) / 2;
+          } else if (aspectRatio < 1) {
+            // Portrait image: crop top/bottom
+            srcHeight = img.width;
+            srcY = (img.height - srcHeight) / 2;
           }
           
-          // Draw image centered
-          ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+          // Draw the image with optimal quality
+          ctx.drawImage(img, srcX, srcY, srcWidth, srcHeight, 0, 0, size, size);
           
-          // Get high quality data URL
-          const highQualityDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+          // Get maximum quality data URL
+          const highQualityDataUrl = canvas.toDataURL('image/png', 1.0);
           
           // Set image preview
           profilePreview.style.backgroundImage = `url(${highQualityDataUrl})`;
@@ -519,7 +602,15 @@
       
       previewName.textContent = name;
       previewUsername.textContent = username.startsWith('@') ? username : '@' + username;
-      previewQuote.textContent = quote;
+      
+      // Update quote text in the inner div
+      const quoteTextInner = previewQuote.querySelector('.quote-text-inner') || document.createElement('div');
+      if (!previewQuote.querySelector('.quote-text-inner')) {
+        quoteTextInner.classList.add('quote-text-inner');
+        previewQuote.appendChild(quoteTextInner);
+      }
+      quoteTextInner.textContent = quote;
+      
       verifiedBadge.style.display = verified ? 'inline-block' : 'none';
       
       // Save to localStorage
@@ -529,35 +620,60 @@
       localStorage.setItem('quoteVerified', verified);
     }
     
-    // Generate and download image
+    // Improved image download function
     function downloadImage() {
       const isLandscape = previewContainer.classList.contains('wide');
       
-      // Set dimensions based on aspect ratio
+      // Set dimensions based on aspect ratio (higher resolution)
       let width, height;
       if (isLandscape) {
-        width = 1600;
-        height = 900;
+        width = 1920;
+        height = 1080;
       } else {
         width = 1080;
-        height = 1350; // Slightly taller than 4:5 to accommodate the UI elements
+        height = 1350;
       }
       
-      // Scale factor to achieve desired dimensions
+      // Calculate proper scale factor for high resolution
       const scaleFactor = width / previewContainer.offsetWidth;
       
-      html2canvas(previewContainer, {
+      // Temporarily add a class for rendering
+      previewContainer.classList.add('rendering');
+      
+      // Setup options for better quality
+      const options = {
         scale: scaleFactor,
         backgroundColor: "#000",
         logging: false,
         useCORS: true,
+        allowTaint: true,
         width: previewContainer.offsetWidth,
         height: previewContainer.offsetHeight,
         windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight
-      }).then(canvas => {
-        // Convert to JPG with high quality
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        windowHeight: document.documentElement.offsetHeight,
+        imageTimeout: 0, // No timeout
+        pixelRatio: 3 // Higher pixel ratio for better quality
+      };
+      
+      html2canvas(previewContainer, options).then(canvas => {
+        // Remove rendering class
+        previewContainer.classList.remove('rendering');
+        
+        // Further enhance quality with a second canvas pass
+        const finalCanvas = document.createElement('canvas');
+        const ctx = finalCanvas.getContext('2d');
+        finalCanvas.width = canvas.width;
+        finalCanvas.height = canvas.height;
+        
+        // Apply image smoothing for higher quality
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // Draw with anti-aliasing
+        ctx.drawImage(canvas, 0, 0);
+        
+        // Convert to max quality JPEG
+        const imgData = finalCanvas.toDataURL('image/jpeg', 1.0);
         
         // Create download link
         const link = document.createElement('a');
@@ -572,6 +688,10 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+      }).catch(err => {
+        console.error("Error generating image:", err);
+        alert("There was an error generating your image. Please try again.");
+        previewContainer.classList.remove('rendering');
       });
     }
   </script>
