@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://d1yei2z3i6k35z.cloudfront.net/11280846/67afc14948ce0_sovereigns-favicon.png" type="image/x-icon">
   <title>Quote Image Generator</title>
   <style>
     body {
@@ -14,10 +15,16 @@
     }
     
     .container {
-      max-width: 800px;
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
+      gap: 20px;
+    }
+    
+    .main-content {
+      display: flex;
+      flex-direction: row;
       gap: 20px;
     }
     
@@ -26,6 +33,14 @@
       border-radius: 12px;
       padding: 20px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      flex: 1;
+    }
+    
+    .preview-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
     
     .form-group {
@@ -96,13 +111,17 @@
     }
     
     .preview-container {
-      max-width: 600px;
-      margin: 20px auto;
+      width: 100%;
+      aspect-ratio: 4/5;
       background: #000;
       border-radius: 12px;
       overflow: hidden;
       position: relative;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .preview-container.wide {
+      aspect-ratio: 16/9;
     }
     
     .profile-area {
@@ -128,7 +147,7 @@
     .verified-badge {
       width: 18px;
       height: 18px;
-      fill: #8e8e8e;
+      fill: #1DA1F2; /* Twitter blue color */
     }
     
     .preview-username {
@@ -143,6 +162,7 @@
       background-color: #333;
       background-size: cover;
       background-position: center;
+      border: 2px solid #333;
     }
     
     .quote-text {
@@ -160,14 +180,76 @@
       display: none !important;
     }
     
-    @media (max-width: 600px) {
-      .container {
-        padding: 10px;
-      }
-      
-      .quote-text {
-        font-size: 18px;
-      }
+    .verified-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #444;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #1DA1F2;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+    
+    .aspect-ratio-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .aspect-ratio-option {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2d2d2d;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .aspect-ratio-option.active {
+      background: #1DA1F2;
+      border-color: #1DA1F2;
     }
 
     h1 {
@@ -176,61 +258,95 @@
       font-weight: 400;
       margin-top: 10px;
     }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+      
+      .preview-container {
+        max-width: 100%;
+      }
+      
+      .quote-text {
+        font-size: 18px;
+      }
+      
+      .container {
+        padding: 10px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Quote Generator</h1>
     
-    <div class="editor-container">
-      <div class="form-group photo-upload">
-        <div id="profilePreview" class="profile-preview"></div>
-        <input type="file" id="photoInput" accept="image/*" class="hidden">
-        <button class="button" id="uploadPhotoBtn">Upload Profile Photo</button>
-      </div>
-      
-      <div class="form-group">
-        <label for="nameInput">Name:</label>
-        <input type="text" id="nameInput" placeholder="Your name">
-      </div>
-      
-      <div class="form-group">
-        <label for="usernameInput">Username:</label>
-        <input type="text" id="usernameInput" placeholder="@username">
-      </div>
-      
-      <div class="form-group">
-        <label for="quoteInput">Quote:</label>
-        <textarea id="quoteInput" placeholder="Your quote goes here..."></textarea>
-      </div>
-      
-      <div class="form-group">
-        <label>
-          <input type="checkbox" id="verifiedCheckbox">
-          Show verified badge
-        </label>
-      </div>
-      
-      <div class="buttons-row">
-        <button id="downloadBtn" class="button">Download Image</button>
-      </div>
-    </div>
-    
-    <div class="preview-container" id="previewContainer">
-      <div class="profile-area">
-        <div class="preview-photo" id="previewPhoto"></div>
-        <div class="profile-info">
-          <div class="preview-name">
-            <span id="previewName">Your Name</span>
-            <svg class="verified-badge" id="verifiedBadge" viewBox="0 0 24 24" style="display: none;">
-              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/>
-            </svg>
+    <div class="main-content">
+      <div class="editor-container">
+        <div class="form-group photo-upload">
+          <div id="profilePreview" class="profile-preview"></div>
+          <input type="file" id="photoInput" accept="image/*" class="hidden">
+          <button class="button" id="uploadPhotoBtn">Upload Profile Photo</button>
+        </div>
+        
+        <div class="form-group">
+          <label for="nameInput">Name:</label>
+          <input type="text" id="nameInput" placeholder="Your name">
+        </div>
+        
+        <div class="form-group">
+          <label for="usernameInput">Username:</label>
+          <input type="text" id="usernameInput" placeholder="@username">
+        </div>
+        
+        <div class="form-group">
+          <label for="quoteInput">Quote:</label>
+          <textarea id="quoteInput" placeholder="Your quote goes here..."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="verified-toggle">
+            <span>Show verified badge</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="verifiedCheckbox">
+              <span class="slider"></span>
+            </label>
+          </label>
+        </div>
+        
+        <div class="form-group">
+          <label>Aspect ratio:</label>
+          <div class="aspect-ratio-selector">
+            <div class="aspect-ratio-option active" data-ratio="portrait">4:5 (Portrait)</div>
+            <div class="aspect-ratio-option" data-ratio="landscape">16:9 (Landscape)</div>
           </div>
-          <div class="preview-username" id="previewUsername">@username</div>
+        </div>
+        
+        <div class="buttons-row">
+          <button id="downloadBtn" class="button">Download Image</button>
         </div>
       </div>
-      <div class="quote-text" id="previewQuote">
-        Your quote will appear here. Make it something memorable!
+      
+      <div class="preview-section">
+        <div class="preview-container" id="previewContainer">
+          <div class="profile-area">
+            <div class="preview-photo" id="previewPhoto"></div>
+            <div class="profile-info">
+              <div class="preview-name">
+                <span id="previewName">Your Name</span>
+                <svg class="verified-badge" id="verifiedBadge" viewBox="0 0 24 24" style="display: none;">
+                  <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/>
+                </svg>
+              </div>
+              <div class="preview-username" id="previewUsername">@username</div>
+            </div>
+          </div>
+          <div class="quote-text" id="previewQuote">
+            Your quote will appear here. Make it something memorable!
+          </div>
+        </div>
       </div>
     </div>
     
@@ -255,6 +371,7 @@
     const previewQuote = document.getElementById('previewQuote');
     const verifiedBadge = document.getElementById('verifiedBadge');
     const previewContainer = document.getElementById('previewContainer');
+    const aspectRatioOptions = document.querySelectorAll('.aspect-ratio-option');
     
     // Load saved data from localStorage
     window.addEventListener('DOMContentLoaded', () => {
@@ -263,6 +380,7 @@
       const savedPhotoData = localStorage.getItem('quotePhotoData');
       const savedQuote = localStorage.getItem('quoteText');
       const savedVerified = localStorage.getItem('quoteVerified') === 'true';
+      const savedAspectRatio = localStorage.getItem('quoteAspectRatio') || 'portrait';
       
       if (savedName) nameInput.value = savedName;
       if (savedUsername) usernameInput.value = savedUsername;
@@ -273,6 +391,9 @@
         profilePreview.style.backgroundImage = `url(${savedPhotoData})`;
         previewPhoto.style.backgroundImage = `url(${savedPhotoData})`;
       }
+      
+      // Set aspect ratio
+      setAspectRatio(savedAspectRatio);
       
       updatePreview();
     });
@@ -294,6 +415,42 @@
     verifiedCheckbox.addEventListener('change', updatePreview);
     downloadBtn.addEventListener('click', downloadImage);
     
+    // Aspect ratio selection
+    aspectRatioOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        aspectRatioOptions.forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+        setAspectRatio(option.getAttribute('data-ratio'));
+        localStorage.setItem('quoteAspectRatio', option.getAttribute('data-ratio'));
+      });
+    });
+    
+    function setAspectRatio(ratio) {
+      if (ratio === 'landscape') {
+        previewContainer.classList.add('wide');
+        
+        // Select the landscape option in UI
+        aspectRatioOptions.forEach(opt => {
+          if (opt.getAttribute('data-ratio') === 'landscape') {
+            opt.classList.add('active');
+          } else {
+            opt.classList.remove('active');
+          }
+        });
+      } else {
+        previewContainer.classList.remove('wide');
+        
+        // Select the portrait option in UI
+        aspectRatioOptions.forEach(opt => {
+          if (opt.getAttribute('data-ratio') === 'portrait') {
+            opt.classList.add('active');
+          } else {
+            opt.classList.remove('active');
+          }
+        });
+      }
+    }
+    
     // Handle profile photo upload
     function handlePhotoUpload(e) {
       const file = e.target.files[0];
@@ -302,11 +459,53 @@
       const reader = new FileReader();
       reader.onload = function(event) {
         const photoDataUrl = event.target.result;
-        profilePreview.style.backgroundImage = `url(${photoDataUrl})`;
-        previewPhoto.style.backgroundImage = `url(${photoDataUrl})`;
         
-        // Save to localStorage
-        localStorage.setItem('quotePhotoData', photoDataUrl);
+        // Create a new Image to get dimensions for proper scaling
+        const img = new Image();
+        img.onload = function() {
+          // Process image to maintain quality
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Set canvas to a high resolution
+          const size = 400; // High resolution avatar
+          canvas.width = size;
+          canvas.height = size;
+          
+          // Draw the image with smoothing
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          
+          // Draw image preserving aspect ratio
+          const aspectRatio = img.width / img.height;
+          let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+          
+          if (aspectRatio > 1) {
+            // Landscape image
+            drawHeight = size;
+            drawWidth = size * aspectRatio;
+            offsetX = -(drawWidth - size) / 2;
+          } else {
+            // Portrait image
+            drawWidth = size;
+            drawHeight = size / aspectRatio;
+            offsetY = -(drawHeight - size) / 2;
+          }
+          
+          // Draw image centered
+          ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+          
+          // Get high quality data URL
+          const highQualityDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+          
+          // Set image preview
+          profilePreview.style.backgroundImage = `url(${highQualityDataUrl})`;
+          previewPhoto.style.backgroundImage = `url(${highQualityDataUrl})`;
+          
+          // Save to localStorage
+          localStorage.setItem('quotePhotoData', highQualityDataUrl);
+        };
+        img.src = photoDataUrl;
       };
       reader.readAsDataURL(file);
     }
@@ -332,21 +531,42 @@
     
     // Generate and download image
     function downloadImage() {
-      const scale = 2; // Higher scale for better quality
+      const isLandscape = previewContainer.classList.contains('wide');
+      
+      // Set dimensions based on aspect ratio
+      let width, height;
+      if (isLandscape) {
+        width = 1600;
+        height = 900;
+      } else {
+        width = 1080;
+        height = 1350; // Slightly taller than 4:5 to accommodate the UI elements
+      }
+      
+      // Scale factor to achieve desired dimensions
+      const scaleFactor = width / previewContainer.offsetWidth;
       
       html2canvas(previewContainer, {
-        scale: scale,
+        scale: scaleFactor,
         backgroundColor: "#000",
         logging: false,
-        useCORS: true
+        useCORS: true,
+        width: previewContainer.offsetWidth,
+        height: previewContainer.offsetHeight,
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight
       }).then(canvas => {
-        // Convert to JPG
-        const imgData = canvas.toDataURL('image/jpeg', 0.9);
+        // Convert to JPG with high quality
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
         
         // Create download link
         const link = document.createElement('a');
         link.href = imgData;
-        link.download = 'quote-image.jpg';
+        
+        // Set filename with timestamp
+        const timestamp = new Date().toISOString().replace(/[-:.]/g, "").substring(0, 14);
+        const username = usernameInput.value || 'quote';
+        link.download = `${username.replace('@', '')}-${timestamp}.jpg`;
         
         // Trigger download
         document.body.appendChild(link);
