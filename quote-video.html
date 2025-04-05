@@ -818,10 +818,9 @@
         ctx.arc(canvas.width * 0.15, contentY, photoSize/2, 0, Math.PI * 2);
         ctx.clip();
         
-const img = new Image();
-          img.src = previewPhoto.style.backgroundImage.replace('url("', '').replace('")', '');
-          ctx.drawImage(img, canvas.width * 0.15 - photoSize/2, contentY - photoSize/2, photoSize, photoSize);
-        }
+        const img = new Image();
+        img.src = previewPhoto.style.backgroundImage.replace('url("', '').replace('")', '');
+        ctx.drawImage(img, canvas.width * 0.15 - photoSize/2, contentY - photoSize/2, photoSize, photoSize);
         ctx.restore();
         
         // Name and username
