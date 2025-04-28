@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Note Taking App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1e1e1e;
+            --sidebar-dark: #252526;
+            --text-color: #e0e0e0;
+            --accent-color: #569cd6;
+            --card-bg: #2d2d2d;
+            --button-bg: #3c3c3c;
+            --button-hover: #4e4e4e;
+        }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        #sidebar {
+            background-color: var(--sidebar-dark);
+            width: 250px;
+            transition: transform 0.3s ease;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #sidebar.hidden {
+            transform: translateX(-250px);
+        }
+        
+        #sidebar-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        #new-note-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 15px;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        #new-note-btn:hover {
+            background-color: #4a88c7;
+        }
+        
+        .note-card {
+            padding: 10px 15px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .note-card:hover {
+            background-color: #333;
+        }
+        
+        .note-card.active {
+            background-color: #3a3d41;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .note-title {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .note-preview {
+            color: #a0a0a0;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        #toggle-btn {
+            background: var(--button-bg);
+            border: none;
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        #toggle-btn:hover {
+            background-color: var(--button-hover);
+        }
+        
+        #toolbar {
+            padding: 10px;
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .tool-btn {
+            background: var(--button-bg);
+            border: none;
+            color: var(--text-color);
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .tool-btn:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--card-bg);
+            min-width: 120px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+        
+        .dropdown-content button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 8px 16px;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .dropdown-content button:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        #editor-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #note-title-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #444;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            padding: 5px 0;
+            margin-bottom: 15px;
+            font-family: 'Roboto Mono', monospace;
+            width: 100%;
+        }
+        
+        #editor {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: none;
+            padding: 10px 0;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        #editor:focus, #note-title-input:focus {
+            outline: none;
+        }
+        
+        #welcome-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        #footer {
+            padding: 10px;
+            text-align: right;
+            border-top: 1px solid #333;
+        }
+        
+        #export-btn {
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        #export-btn:hover {
+            background-color: var(--button-hover);
+        }
+        
+        [contenteditable=true]:empty:before {
+            content: attr(placeholder);
+            color: #666;
+            cursor: text;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div id="sidebar-header">
+            <h2>Notes</h2>
+        </div>
+        <button id="new-note-btn">+ New Note</button>
+        <div id="notes-list">
+            <!-- Note cards will be displayed here -->
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="main-content">
+        <div id="toolbar">
+            <button id="toggle-btn">☰</button>
+            <button class="tool-btn" onclick="document.execCommand('bold')">B</button>
+            <button class="tool-btn" onclick="document.execCommand('italic')">I</button>
+            <button class="tool-btn" onclick="document.execCommand('underline')">U</button>
+            
+            <!-- Font size dropdown -->
+            <div class="dropdown">
+                <button class="tool-btn">A</button>
+                <div class="dropdown-content">
+                    <button onclick="setFontSize('1')">Small</button>
+                    <button onclick="setFontSize('3')">Normal</button>
+                    <button onclick="setFontSize('5')">Large</button>
+                    <button onclick="setFontSize('7')">X-Large</button>
+                </div>
+            </div>
+            
+            <!-- Text color -->
+            <div class="dropdown">
+                <button class="tool-btn">🎨</button>
+                <div class="dropdown-content">
+                    <button onclick="setTextColor('#e0e0e0')">White</button>
+                    <button onclick="setTextColor('#569cd6')">Blue</button>
+                    <button onclick="setTextColor('#ce9178')">Orange</button>
+                    <button onclick="setTextColor('#4ec9b0')">Green</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="editor-container">
+            <input type="text" id="note-title-input" placeholder="Note Title">
+            <div id="editor" contenteditable="true" placeholder="Start typing your note here..."></div>
+        </div>
+        
+        <div id="footer">
+            <button id="export-btn">Export Notes</button>
+        </div>
+        
+        <div id="welcome-screen">
+            <h2>Welcome to Simple Notes</h2>
+            <p>Create a new note or select an existing one from the sidebar.</p>
+        </div>
+    </div>
+
+    <script>
+        let encryptionKey = localStorage.getItem('notesEncryptionKey');
+        if (!encryptionKey) {
+            encryptionKey = generateRandomString(32);
+            localStorage.setItem('notesEncryptionKey', encryptionKey);
+        }
+    
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const newNoteBtn = document.getElementById('new-note-btn');
+        const notesList = document.getElementById('notes-list');
+        const noteTitleInput = document.getElementById('note-title-input');
+        const editor = document.getElementById('editor');
+        const editorContainer = document.getElementById('editor-container');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const exportBtn = document.getElementById('export-btn');
+        
+        let currentNoteId = null;
+        let notes = [];
+        
+        function init() {
+            loadNotes();
+            setupEventListeners();
+            
+            if (notes.length === 0) {
+                showWelcomeScreen();
+            } else {
+                loadNote(notes[0].id);
+            }
+        }
+        
+        function setupEventListeners() {
+          
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+            });
+            
+            newNoteBtn.addEventListener('click', createNewNote);
+            
+            noteTitleInput.addEventListener('input', saveCurrentNote);
+            editor.addEventListener('input', saveCurrentNote);
+            
+            exportBtn.addEventListener('click', exportNotes);
+        }
+        
+        function createNewNote() {
+            const newNote = {
+                id: Date.now().toString(),
+                title: 'Untitled Note',
+                content: '',
+                created: new Date().toISOString()
+            };
+            
+            notes.unshift(newNote);
+            saveNotes();
+            renderNotesList();
+            loadNote(newNote.id);
+        }
+        
+        function loadNotes() {
+            const encryptedNotes = localStorage.getItem('notes');
+            if (encryptedNotes) {
+                try {
+                    notes = JSON.parse(decrypt(encryptedNotes, encryptionKey));
+                } catch (e) {
+                    console.error('Error decrypting notes:', e);
+                    notes = [];
+                }
+            }
+            renderNotesList();
+        }
+        
+        function saveNotes() {
+            try {
+                const encryptedNotes = encrypt(JSON.stringify(notes), encryptionKey);
+                localStorage.setItem('notes', encryptedNotes);
+            } catch (e) {
+                console.error('Error encrypting notes:', e);
+                alert('Error saving notes. Please try again.');
+            }
+        }
+        
+        function renderNotesList() {
+            notesList.innerHTML = '';
+            
+            if (notes.length === 0) {
+                showWelcomeScreen();
+                return;
+            }
+            
+            notes.forEach(note => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'note-card';
+                if (note.id === currentNoteId) {
+                    noteCard.classList.add('active');
+                }
+                
+                const noteTitle = document.createElement('div');
+                noteTitle.className = 'note-title';
+                noteTitle.textContent = note.title || 'Untitled Note';
+                
+                const notePreview = document.createElement('div');
+                notePreview.className = 'note-preview';
+                notePreview.textContent = stripHtml(note.content).substring(0, 50) || 'No content';
+                
+                noteCard.appendChild(noteTitle);
+                noteCard.appendChild(notePreview);
+                notesList.appendChild(noteCard);
+                
+                noteCard.addEventListener('click', () => loadNote(note.id));
+            });
+            
+            hideWelcomeScreen();
+        }
+        
+        function loadNote(noteId) {
+            currentNoteId = noteId;
+            const note = notes.find(n => n.id === noteId);
+            
+            if (note) {
+                noteTitleInput.value = note.title || '';
+                editor.innerHTML = note.content || '';
+                renderNotesList();
+                hideWelcomeScreen();
+            }
+        }
+        
+        function saveCurrentNote() {
+            if (!currentNoteId) return;
+            
+            const noteIndex = notes.findIndex(n => n.id === currentNoteId);
+            if (noteIndex !== -1) {
+                notes[noteIndex].title = noteTitleInput.value;
+                notes[noteIndex].content = editor.innerHTML;
+                notes[noteIndex].updated = new Date().toISOString();
+                
+                saveNotes();
+                renderNotesList();
+            }
+        }
+        
+        function showWelcomeScreen() {
+            welcomeScreen.style.display = 'flex';
+            editorContainer.style.display = 'none';
+        }
+        
+        function hideWelcomeScreen() {
+            welcomeScreen.style.display = 'none';
+            editorContainer.style.display = 'flex';
+        }
+        
+        function exportNotes() {
+            const notesForExport = notes.map(note => ({
+                title: note.title,
+                content: stripHtml(note.content),
+                created: note.created,
+                updated: note.updated
+            }));
+            
+            const blob = new Blob([JSON.stringify(notesForExport, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notes_export.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function setFontSize(size) {
+            document.execCommand('fontSize', false, size);
+        }
+        
+        function setTextColor(color) {
+            document.execCommand('foreColor', false, color);
+        }
+        
+        function stripHtml(html) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            return temp.textContent || temp.innerText || '';
+        }
+        
+
+        function encrypt(text, key) {
+            let result = '';
+            for(let i = 0; i < text.length; i++) {
+                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return btoa(result);
+        }
+        
+        function decrypt(encoded, key) {
+            const text = atob(encoded);
+            let result = '';
+            for(let i = 0; i < text.length; i++) {
+                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return result;
+        }
+        
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        init();
+    </script>
+</body>
+</html>
