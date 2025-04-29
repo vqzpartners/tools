@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Note Taking App</title>
+    <title>Secure Note Taking App</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="cdn/images/favicon.png" type="image/x-icon">
     <style>
@@ -253,7 +253,7 @@
             border-top: 1px solid #333;
         }
         
-        #export-btn {
+        #export-btn, #lock-btn {
             background-color: var(--button-bg);
             color: var(--text-color);
             border: none;
@@ -261,10 +261,19 @@
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Roboto Mono', monospace;
+            margin-left: 10px;
         }
         
-        #export-btn:hover {
+        #export-btn:hover, #lock-btn:hover {
             background-color: var(--button-hover);
+        }
+        
+        #lock-btn {
+            background-color: var(--accent-color);
+        }
+        
+        #lock-btn:hover {
+            background-color: #4a88c7;
         }
         
         [contenteditable=true]:empty:before {
@@ -331,6 +340,47 @@
         .confirm-btn:hover {
             background-color: var(--delete-hover);
         }
+        
+        .password-input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            background-color: var(--bg-dark);
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .encryption-status {
+            display: flex;
+            align-items: center;
+            margin-right: auto;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-secured {
+            background-color: #4ec9b0;
+        }
+        
+        .status-unsecured {
+            background-color: #ce9178;
+        }
+        
+        .system-message {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -382,12 +432,18 @@
         </div>
         
         <div id="footer">
+            <div class="encryption-status">
+                <div id="status-indicator" class="status-indicator status-unsecured"></div>
+                <span id="status-text">Unsecured</span>
+            </div>
+            <button id="lock-btn">🔒 Set Password</button>
             <button id="export-btn">Export Notes</button>
         </div>
         
         <div id="welcome-screen">
-            <h2>Welcome to Simple Notes</h2>
+            <h2>Welcome to Secure Notes</h2>
             <p>Create a new note or select an existing one from the sidebar.</p>
+            <p>For maximum security, set an encryption password by clicking 🔒 Set Password.</p>
         </div>
     </div>
     
@@ -402,12 +458,179 @@
             </div>
         </div>
     </div>
+    
+    <!-- Password Modal -->
+    <div id="password-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Set Encryption Password</h3>
+            <p>Create a strong password to encrypt your notes. If you forget this password, your notes cannot be recovered!</p>
+            <input type="password" id="password-input" class="password-input" placeholder="Enter password">
+            <input type="password" id="confirm-password-input" class="password-input" placeholder="Confirm password">
+            <div id="password-message" class="system-message" style="display: none;"></div>
+            <div class="modal-buttons">
+                <button id="cancel-password" class="modal-btn cancel-btn">Cancel</button>
+                <button id="confirm-password" class="modal-btn confirm-btn">Set Password</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Unlock Modal -->
+    <div id="unlock-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Unlock Notes</h3>
+            <p>Enter your password to access your encrypted notes.</p>
+            <input type="password" id="unlock-password-input" class="password-input" placeholder="Enter password">
+            <div id="unlock-message" class="system-message" style="display: none;"></div>
+            <div class="modal-buttons">
+                <button id="unlock-password" class="modal-btn confirm-btn">Unlock</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let encryptionKey = localStorage.getItem('notesEncryptionKey');
-        if (!encryptionKey) {
-            encryptionKey = generateRandomString(32);
-            localStorage.setItem('notesEncryptionKey', encryptionKey);
+        // Crypto utilities for secure encryption
+        const cryptoUtils = {
+            // Generate a salt for password derivation
+            generateSalt: async function() {
+                return window.crypto.getRandomValues(new Uint8Array(16));
+            },
+            
+            // Convert a string to an ArrayBuffer
+            str2ab: function(str) {
+                const encoder = new TextEncoder();
+                return encoder.encode(str);
+            },
+            
+            // Convert an ArrayBuffer to a hex string
+            ab2hex: function(buffer) {
+                return Array.from(new Uint8Array(buffer))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+            },
+            
+            // Convert a hex string to an ArrayBuffer
+            hex2ab: function(hex) {
+                const bytes = new Uint8Array(hex.length / 2);
+                for (let i = 0; i < hex.length; i += 2) {
+                    bytes[i/2] = parseInt(hex.substring(i, i + 2), 16);
+                }
+                return bytes;
+            },
+            
+            // Derive a key from a password and salt using PBKDF2
+            deriveKey: async function(password, salt) {
+                const keyMaterial = await window.crypto.subtle.importKey(
+                    "raw",
+                    this.str2ab(password),
+                    { name: "PBKDF2" },
+                    false,
+                    ["deriveBits", "deriveKey"]
+                );
+                
+                return window.crypto.subtle.deriveKey(
+                    {
+                        name: "PBKDF2",
+                        salt: salt,
+                        iterations: 100000, // High iteration count for security
+                        hash: "SHA-256"
+                    },
+                    keyMaterial,
+                    { name: "AES-GCM", length: 256 },
+                    false,
+                    ["encrypt", "decrypt"]
+                );
+            },
+            
+            // Encrypt data using AES-GCM
+            encrypt: async function(data, password) {
+                try {
+                    const salt = await this.generateSalt();
+                    const key = await this.deriveKey(password, salt);
+                    const iv = window.crypto.getRandomValues(new Uint8Array(12)); // AES-GCM recommends 12 bytes for IV
+                    
+                    const encryptedContent = await window.crypto.subtle.encrypt(
+                        {
+                            name: "AES-GCM",
+                            iv: iv
+                        },
+                        key,
+                        this.str2ab(data)
+                    );
+                    
+                    // Return a single object with all the information needed to decrypt
+                    return {
+                        version: 1, // For future upgrades
+                        salt: this.ab2hex(salt),
+                        iv: this.ab2hex(iv),
+                        data: this.ab2hex(encryptedContent)
+                    };
+                } catch (e) {
+                    console.error("Encryption failed:", e);
+                    throw e;
+                }
+            },
+            
+            // Decrypt data using AES-GCM
+            decrypt: async function(encryptedData, password) {
+                try {
+                    // Parse the encrypted data object
+                    const { salt, iv, data } = encryptedData;
+                    
+                    // Convert hex strings back to ArrayBuffers
+                    const saltBuffer = this.hex2ab(salt);
+                    const ivBuffer = this.hex2ab(iv);
+                    const dataBuffer = this.hex2ab(data);
+                    
+                    // Derive the key from the password and salt
+                    const key = await this.deriveKey(password, saltBuffer);
+                    
+                    // Decrypt the data
+                    const decryptedContent = await window.crypto.subtle.decrypt(
+                        {
+                            name: "AES-GCM",
+                            iv: ivBuffer
+                        },
+                        key,
+                        dataBuffer
+                    );
+                    
+                    // Convert the decrypted ArrayBuffer back to a string
+                    const decoder = new TextDecoder();
+                    return decoder.decode(decryptedContent);
+                } catch (e) {
+                    console.error("Decryption failed:", e);
+                    throw e;
+                }
+            }
+        };
+
+        // Store only a hash of the password (only for verification, not for decryption)
+        async function storePasswordHash(password) {
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                localStorage.setItem('notesMasterPasswordHash', hashHex);
+            } catch (e) {
+                console.error('Error hashing password:', e);
+            }
+        }
+
+        // Verify a provided password against the stored hash
+        async function verifyPassword(password) {
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                return hashHex === localStorage.getItem('notesMasterPasswordHash');
+            } catch (e) {
+                console.error('Error verifying password:', e);
+                return false;
+            }
         }
     
         const sidebar = document.getElementById('sidebar');
@@ -419,22 +642,43 @@
         const editorContainer = document.getElementById('editor-container');
         const welcomeScreen = document.getElementById('welcome-screen');
         const exportBtn = document.getElementById('export-btn');
+        const lockBtn = document.getElementById('lock-btn');
         const deleteModal = document.getElementById('delete-modal');
         const cancelDeleteBtn = document.getElementById('cancel-delete');
         const confirmDeleteBtn = document.getElementById('confirm-delete');
+        const passwordModal = document.getElementById('password-modal');
+        const cancelPasswordBtn = document.getElementById('cancel-password');
+        const confirmPasswordBtn = document.getElementById('confirm-password');
+        const passwordInput = document.getElementById('password-input');
+        const confirmPasswordInput = document.getElementById('confirm-password-input');
+        const passwordMessage = document.getElementById('password-message');
+        const unlockModal = document.getElementById('unlock-modal');
+        const unlockPasswordInput = document.getElementById('unlock-password-input');
+        const unlockButton = document.getElementById('unlock-password');
+        const unlockMessage = document.getElementById('unlock-message');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
         
         let currentNoteId = null;
         let noteToDeleteId = null;
         let notes = [];
+        let isEncrypted = false;
         
         function init() {
-            loadNotes();
-            setupEventListeners();
-            
-            if (notes.length === 0) {
-                showWelcomeScreen();
+            // Check if we have encrypted notes
+            if (localStorage.getItem('notesMasterPasswordHash')) {
+                isEncrypted = true;
+                updateEncryptionStatus();
+                showUnlockModal();
             } else {
-                loadNote(notes[0].id);
+                loadNotes();
+                setupEventListeners();
+                
+                if (notes.length === 0) {
+                    showWelcomeScreen();
+                } else {
+                    loadNote(notes[0].id);
+                }
             }
         }
         
@@ -449,6 +693,7 @@
             editor.addEventListener('input', saveCurrentNote);
             
             exportBtn.addEventListener('click', exportNotes);
+            lockBtn.addEventListener('click', showPasswordModal);
             
             // Delete modal event listeners
             cancelDeleteBtn.addEventListener('click', () => {
@@ -463,6 +708,130 @@
                     noteToDeleteId = null;
                 }
             });
+            
+            // Password modal event listeners
+            cancelPasswordBtn.addEventListener('click', () => {
+                passwordModal.style.display = 'none';
+                passwordInput.value = '';
+                confirmPasswordInput.value = '';
+                passwordMessage.style.display = 'none';
+            });
+            
+            confirmPasswordBtn.addEventListener('click', setEncryptionPassword);
+            
+            // Unlock modal event listener
+            unlockButton.addEventListener('click', unlockNotes);
+        }
+        
+        function showPasswordModal() {
+            passwordModal.style.display = 'flex';
+        }
+        
+        function showUnlockModal() {
+            unlockModal.style.display = 'flex';
+        }
+        
+        async function setEncryptionPassword() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (password.length < 8) {
+                showPasswordMessage('Password must be at least 8 characters long', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showPasswordMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            try {
+                // Store the password hash for verification
+                await storePasswordHash(password);
+                
+                // Store the password in sessionStorage for this session
+                sessionStorage.setItem('currentSessionPassword', password);
+                
+                // Re-encrypt any existing notes with the new password
+                await saveNotes();
+                
+                isEncrypted = true;
+                updateEncryptionStatus();
+                
+                passwordModal.style.display = 'none';
+                passwordInput.value = '';
+                confirmPasswordInput.value = '';
+                
+                showPasswordMessage('', 'success');
+            } catch (error) {
+                console.error('Error setting encryption password:', error);
+                showPasswordMessage('Failed to set password. Please try again.', 'error');
+            }
+        }
+        
+        function showPasswordMessage(message, type) {
+            passwordMessage.textContent = message;
+            passwordMessage.style.display = message ? 'block' : 'none';
+            passwordMessage.style.color = type === 'error' ? '#ce4242' : '#4ec9b0';
+        }
+        
+        function showUnlockMessage(message, type) {
+            unlockMessage.textContent = message;
+            unlockMessage.style.display = message ? 'block' : 'none';
+            unlockMessage.style.color = type === 'error' ? '#ce4242' : '#4ec9b0';
+        }
+        
+        async function unlockNotes() {
+            const password = unlockPasswordInput.value;
+            
+            if (!password) {
+                showUnlockMessage('Please enter your password', 'error');
+                return;
+            }
+            
+            try {
+                const isPasswordValid = await verifyPassword(password);
+                
+                if (!isPasswordValid) {
+                    showUnlockMessage('Incorrect password', 'error');
+                    return;
+                }
+                
+                // Store the password in sessionStorage for this session
+                sessionStorage.setItem('currentSessionPassword', password);
+                
+                // Load the notes
+                await loadNotes();
+                setupEventListeners();
+                
+                if (notes.length === 0) {
+                    showWelcomeScreen();
+                } else {
+                    loadNote(notes[0].id);
+                }
+                
+                unlockModal.style.display = 'none';
+                unlockPasswordInput.value = '';
+                showUnlockMessage('', 'success');
+                
+            } catch (error) {
+                console.error('Error unlocking notes:', error);
+                showUnlockMessage('Failed to unlock notes. Please try again.', 'error');
+            }
+        }
+        
+        function updateEncryptionStatus() {
+            if (isEncrypted) {
+                statusIndicator.classList.remove('status-unsecured');
+                statusIndicator.classList.add('status-secured');
+                statusText.textContent = 'Secured';
+                lockBtn.textContent = '🔒 Change Password';
+            } else {
+                statusIndicator.classList.remove('status-secured');
+                statusIndicator.classList.add('status-unsecured');
+                statusText.textContent = 'Unsecured';
+                lockBtn.textContent = '🔒 Set Password';
+            }
         }
         
         function createNewNote() {
@@ -479,159 +848,187 @@
             loadNote(newNote.id);
         }
         
-        function loadNotes() {
-            const encryptedNotes = localStorage.getItem('notes');
-            if (encryptedNotes) {
-                try {
-                    notes = JSON.parse(decrypt(encryptedNotes, encryptionKey));
-                } catch (e) {
-                    console.error('Error decrypting notes:', e);
-                    notes = [];
-                }
-            }
-            renderNotesList();
-        }
-        
-        function saveNotes() {
-            try {
-                const encryptedNotes = encrypt(JSON.stringify(notes), encryptionKey);
-                localStorage.setItem('notes', encryptedNotes);
-            } catch (e) {
-                console.error('Error encrypting notes:', e);
-                alert('Error saving notes. Please try again.');
-            }
-        }
-        
-        function renderNotesList() {
-            notesList.innerHTML = '';
+        async function loadNotes() {
+            const encryptedNotesData = localStorage.getItem('notes');
             
-            if (notes.length === 0) {
-                showWelcomeScreen();
+            if (!encryptedNotesData) {
+                notes = [];
+                renderNotesList();
                 return;
             }
             
-            notes.forEach(note => {
-                const noteCard = document.createElement('div');
-                noteCard.className = 'note-card';
-                if (note.id === currentNoteId) {
-                    noteCard.classList.add('active');
+            try {
+                if (isEncrypted) {
+                    // Get the session password
+                    const password = sessionStorage.getItem('currentSessionPassword');
+                    
+                    if (!password) {
+                        throw new Error('No password available to decrypt notes');
+                    }
+                    
+                    // Parse the encrypted data
+                    const encryptedData = JSON.parse(encryptedNotesData);
+                    
+                    // Decrypt the notes
+                    const decryptedNotes = await cryptoUtils.decrypt(encryptedData, password);
+                    notes = JSON.parse(decryptedNotes);
+                } else {
+                    // For backwards compatibility - handle previously unencrypted notes
+                    try {
+                        notes = JSON.parse(encryptedNotesData);
+                    } catch {
+                        notes = [];
+                    }
                 }
                 
-                // Note content container
-                const noteContentDiv = document.createElement('div');
-                noteContentDiv.className = 'note-content';
-                
-                const noteTitle = document.createElement('div');
-                noteTitle.className = 'note-title';
-                noteTitle.textContent = note.title || 'Untitled Note';
-                
-                const notePreview = document.createElement('div');
-                notePreview.className = 'note-preview';
-                notePreview.textContent = stripHtml(note.content).substring(0, 50) || 'No content';
-                
-                noteContentDiv.appendChild(noteTitle);
-                noteContentDiv.appendChild(notePreview);
-                
-                // Delete button
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '✕';
-                deleteBtn.title = 'Delete note';
-                
-                noteCard.appendChild(noteContentDiv);
-                noteCard.appendChild(deleteBtn);
-                notesList.appendChild(noteCard);
-                
-                // Event listeners
-                noteContentDiv.addEventListener('click', () => loadNote(note.id));
-                
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent note from being selected when delete is clicked
-                    noteToDeleteId = note.id;
-                    deleteModal.style.display = 'flex';
-                });
-            });
-            
-            hideWelcomeScreen();
+                renderNotesList();
+            } catch (e) {
+                console.error('Error loading notes:', e);
+                alert('Error loading notes. Please check your password and try again.');
+                notes = [];
+                renderNotesList();
+            }
         }
         
-        function loadNote(noteId) {
-            currentNoteId = noteId;
-            const note = notes.find(n => n.id === noteId);
-            
-            if (note) {
-                noteTitleInput.value = note.title || '';
-                editor.innerHTML = note.content || '';
-                renderNotesList();
-                hideWelcomeScreen();
+        async function saveNotes() {
+            try {
+                if (isEncrypted) {
+                    // Get the session password
+                    const password = sessionStorage.getItem('currentSessionPassword');
+                    
+                    if (!password) {
+                        throw new Error('No password available to encrypt notes');
+                    }
+                    
+                    // Convert notes to string
+                    const notesString = JSON.stringify(notes);
+                    
+                    // Encrypt the notes
+                    const encryptedData = await cryptoUtils.encrypt(notesString, password);
+                    
+localStorage.setItem('notes', JSON.stringify(encryptedData));
+                } else {
+                    // Store unencrypted for backwards compatibility
+                    localStorage.setItem('notes', JSON.stringify(notes));
+                }
+            } catch (e) {
+                console.error('Error saving notes:', e);
+                alert('Error saving notes. Please try again.');
             }
         }
         
         function saveCurrentNote() {
             if (!currentNoteId) return;
             
-            const noteIndex = notes.findIndex(n => n.id === currentNoteId);
-            if (noteIndex !== -1) {
-                notes[noteIndex].title = noteTitleInput.value;
-                notes[noteIndex].content = editor.innerHTML;
-                notes[noteIndex].updated = new Date().toISOString();
-                
-                saveNotes();
-                renderNotesList();
-            }
-        }
-        
-        function deleteNote(noteId) {
-            // If we're deleting the current note
-            if (noteId === currentNoteId) {
-                currentNoteId = null;
-            }
+            const noteIndex = notes.findIndex(note => note.id === currentNoteId);
+            if (noteIndex === -1) return;
             
-            // Remove the note from the array
-            notes = notes.filter(note => note.id !== noteId);
+            notes[noteIndex].title = noteTitleInput.value || 'Untitled Note';
+            notes[noteIndex].content = editor.innerHTML;
+            notes[noteIndex].updated = new Date().toISOString();
+            
             saveNotes();
-            
-            // If there are other notes, load the first one
-            if (notes.length > 0) {
-                loadNote(notes[0].id);
-            } else {
-                // Show welcome screen if no notes left
-                noteTitleInput.value = '';
-                editor.innerHTML = '';
-                showWelcomeScreen();
-            }
-            
             renderNotesList();
         }
         
+        function loadNote(noteId) {
+            const note = notes.find(note => note.id === noteId);
+            if (!note) return;
+            
+            currentNoteId = noteId;
+            noteTitleInput.value = note.title;
+            editor.innerHTML = note.content;
+            
+            // Hide welcome screen and show editor
+            hideWelcomeScreen();
+            
+            // Update active state in sidebar
+            const noteCards = document.querySelectorAll('.note-card');
+            noteCards.forEach(card => {
+                if (card.dataset.id === noteId) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+        
+        function deleteNote(noteId) {
+            const noteIndex = notes.findIndex(note => note.id === noteId);
+            if (noteIndex === -1) return;
+            
+            notes.splice(noteIndex, 1);
+            saveNotes();
+            renderNotesList();
+            
+            if (notes.length === 0) {
+                currentNoteId = null;
+                showWelcomeScreen();
+            } else if (currentNoteId === noteId) {
+                loadNote(notes[0].id);
+            }
+        }
+        
+        function showDeleteModal(noteId) {
+            noteToDeleteId = noteId;
+            deleteModal.style.display = 'flex';
+        }
+        
+        function renderNotesList() {
+            notesList.innerHTML = '';
+            
+            notes.forEach(note => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'note-card';
+                noteCard.dataset.id = note.id;
+                if (note.id === currentNoteId) {
+                    noteCard.classList.add('active');
+                }
+                
+                const noteContent = document.createElement('div');
+                noteContent.className = 'note-content';
+                
+                const noteTitle = document.createElement('div');
+                noteTitle.className = 'note-title';
+                noteTitle.textContent = note.title;
+                
+                const notePreview = document.createElement('div');
+                notePreview.className = 'note-preview';
+                // Strip HTML for preview
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = note.content;
+                notePreview.textContent = tempDiv.textContent.substring(0, 50);
+                
+                noteContent.appendChild(noteTitle);
+                noteContent.appendChild(notePreview);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDeleteModal(note.id);
+                });
+                
+                noteCard.appendChild(noteContent);
+                noteCard.appendChild(deleteBtn);
+                
+                noteCard.addEventListener('click', () => {
+                    loadNote(note.id);
+                });
+                
+                notesList.appendChild(noteCard);
+            });
+        }
+        
         function showWelcomeScreen() {
-            welcomeScreen.style.display = 'flex';
             editorContainer.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
         }
         
         function hideWelcomeScreen() {
-            welcomeScreen.style.display = 'none';
             editorContainer.style.display = 'flex';
-        }
-        
-        function exportNotes() {
-            const notesForExport = notes.map(note => ({
-                title: note.title,
-                content: stripHtml(note.content),
-                created: note.created,
-                updated: note.updated
-            }));
-            
-            const blob = new Blob([JSON.stringify(notesForExport, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'notes_export.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            welcomeScreen.style.display = 'none';
         }
         
         function setFontSize(size) {
@@ -642,38 +1039,29 @@
             document.execCommand('foreColor', false, color);
         }
         
-        function stripHtml(html) {
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            return temp.textContent || temp.innerText || '';
-        }
-        
-        function encrypt(text, key) {
-            let result = '';
-            for(let i = 0; i < text.length; i++) {
-                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        function exportNotes() {
+            try {
+                const notesData = notes.map(note => ({
+                    title: note.title,
+                    content: note.content,
+                    created: note.created,
+                    updated: note.updated
+                }));
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notesData, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "secure-notes-export.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            } catch (e) {
+                console.error('Error exporting notes:', e);
+                alert('Error exporting notes. Please try again.');
             }
-            return btoa(result);
         }
         
-        function decrypt(encoded, key) {
-            const text = atob(encoded);
-            let result = '';
-            for(let i = 0; i < text.length; i++) {
-                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-            }
-            return result;
-        }
-        
-        function generateRandomString(length) {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-        
+        // Initialize the app
         init();
     </script>
 </body>
