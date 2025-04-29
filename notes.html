@@ -30,33 +30,91 @@ body {
     overflow: hidden;
 }
 
+/* Modified sidebar CSS */
 #sidebar {
     background-color: var(--sidebar-dark);
     width: 250px;
-    transition: transform 0.3s ease;
     height: 100vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     position: fixed;
     z-index: 10;
-    transform: translateX(-220px); /* Hide by default but leave a hint */
+    transform: translateX(-250px); /* Fully hide by default */
+    transition: transform 0.3s ease;
 }
-
-#sidebar:hover {
-    transform: translateX(0); /* Show on hover */
+#sidebar.visible {
+    transform: translateX(0); /* Show when visible class is added */
 }
-
-#sidebar.hidden {
-    transform: translateX(-250px);
+#toggle-sidebar {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--sidebar-dark);
+    border: none;
+    color: var(--text-color);
+    width: 30px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
 }
-
+#toggle-sidebar:hover {
+    background-color: var(--button-hover);
+}
 #sidebar-header {
     padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #333;
+}
+#main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+    margin-left: 30px; /* Space for the toggle button */
+    transition: margin-left 0.3s ease;
+}
+#main-content.sidebar-visible {
+    margin-left: 250px;
+}
+/* Media queries for mobile responsiveness */
+@media screen and (max-width: 768px) {
+    body {
+        flex-direction: column;
+        overflow: auto;
+    }
+    
+    #sidebar {
+        width: 100%;
+        height: 100vh;
+        max-height: none;
+        position: fixed;
+        transform: translateX(-100%);
+    }
+    
+    #main-content {
+        margin-left: 30px;
+        height: auto;
+        min-height: 60vh;
+    }
+    
+    #main-content.sidebar-visible {
+        margin-left: 30px; /* Don't push content on mobile */
+    }
+    
+    #toggle-sidebar {
+        width: 30px;
+        height: 50px;
+    }
 }
 
 #new-note-btn {
@@ -127,36 +185,6 @@ body {
 .delete-btn:hover {
     color: var(--delete-color);
     opacity: 1;
-}
-
-#main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow-y: auto;
-    margin-left: 30px; /* Space for the sidebar hint */
-    transition: margin-left 0.3s ease;
-}
-
-#sidebar:hover + #main-content {
-    margin-left: 250px;
-}
-
-#toggle-btn {
-    background: var(--button-bg);
-    border: none;
-    color: var(--text-color);
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    border-radius: 4px;
-    margin-right: 10px;
-}
-
-#toggle-btn:hover {
-    background-color: var(--button-hover);
 }
 
 #toolbar {
@@ -395,80 +423,6 @@ body {
     text-align: center;
 }
 
-/* Media queries for mobile responsiveness */
-@media screen and (max-width: 768px) {
-    body {
-        flex-direction: column;
-        overflow: auto;
-    }
-    
-    #sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 60vh;
-        position: relative;
-        transform: none;
-        display: none; /* Hidden by default on mobile */
-    }
-    
-    #sidebar.show-mobile {
-        display: flex;
-    }
-    
-    #main-content {
-        margin-left: 0;
-        height: auto;
-        min-height: 60vh;
-    }
-    
-    #toolbar {
-        flex-wrap: wrap;
-    }
-    
-    .tool-btn, #toggle-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-    
-    #editor-container {
-        padding: 10px;
-    }
-    
-    #footer {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    #lock-btn, #export-btn {
-        margin: 5px 0;
-        width: 100%;
-    }
-    
-    .encryption-status {
-        margin-bottom: 10px;
-        margin-right: 0;
-        justify-content: center;
-        width: 100%;
-    }
-    
-    .modal-content {
-        width: 90%;
-        max-width: none;
-    }
-    
-    /* Welcome screen adjustments */
-    #welcome-screen {
-        padding: 15px;
-    }
-    
-    #welcome-screen h2 {
-        font-size: 1.5rem;
-    }
-}
-
-/* Additional mobile adjustments for smaller screens */
 @media screen and (max-width: 480px) {
     .note-card {
         padding: 8px;
@@ -478,7 +432,7 @@ body {
         font-size: 1.2rem;
     }
     
-    .tool-btn, #toggle-btn {
+    .tool-btn {
         width: 36px;
         height: 36px;
     }
@@ -504,698 +458,684 @@ body {
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div id="sidebar">
-        <div id="sidebar-header">
-            <h2>Notes</h2>
-        </div>
-        <button id="new-note-btn">+ New Note</button>
-        <div id="notes-list">
-            <!-- Note cards will be displayed here -->
-        </div>
+<!-- Add this toggle button outside both the sidebar and main content -->
+<button id="toggle-sidebar">&#9776;</button>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <div id="sidebar-header">
+        <h2>Notes</h2>
     </div>
-    
-    <!-- Main Content -->
-    <div id="main-content">
-        <div id="toolbar">
-            <button id="toggle-btn">☰</button>
-            <button class="tool-btn" onclick="document.execCommand('bold')">B</button>
-            <button class="tool-btn" onclick="document.execCommand('italic')">I</button>
-            <button class="tool-btn" onclick="document.execCommand('underline')">U</button>
-            
-            <!-- Font size dropdown -->
-            <div class="dropdown">
-                <button class="tool-btn">A</button>
-                <div class="dropdown-content">
-                    <button onclick="setFontSize('1')">Small</button>
-                    <button onclick="setFontSize('3')">Normal</button>
-                    <button onclick="setFontSize('5')">Large</button>
-                    <button onclick="setFontSize('7')">X-Large</button>
-                </div>
-            </div>
-            
-            <!-- Text color -->
-            <div class="dropdown">
-                <button class="tool-btn">🎨</button>
-                <div class="dropdown-content">
-                    <button onclick="setTextColor('#e0e0e0')">White</button>
-                    <button onclick="setTextColor('#569cd6')">Blue</button>
-                    <button onclick="setTextColor('#ce9178')">Orange</button>
-                    <button onclick="setTextColor('#4ec9b0')">Green</button>
-                </div>
+    <button id="new-note-btn">+ New Note</button>
+    <div id="notes-list">
+        <!-- Note cards will be displayed here -->
+    </div>
+</div>
+
+<!-- Main Content -->
+<div id="main-content">
+    <div id="toolbar">
+        <!-- Removed the toggle-btn from here -->
+        <button class="tool-btn" onclick="document.execCommand('bold')">B</button>
+        <button class="tool-btn" onclick="document.execCommand('italic')">I</button>
+        <button class="tool-btn" onclick="document.execCommand('underline')">U</button>
+        
+        <!-- Font size dropdown -->
+        <div class="dropdown">
+            <button class="tool-btn">A</button>
+            <div class="dropdown-content">
+                <button onclick="setFontSize('1')">Small</button>
+                <button onclick="setFontSize('3')">Normal</button>
+                <button onclick="setFontSize('5')">Large</button>
+                <button onclick="setFontSize('7')">X-Large</button>
             </div>
         </div>
         
-        <div id="editor-container">
-            <input type="text" id="note-title-input" placeholder="Note Title">
-            <div id="editor" contenteditable="true" placeholder="Start typing your note here..."></div>
-        </div>
-        
-        <div id="footer">
-            <div class="encryption-status">
-                <div id="status-indicator" class="status-indicator status-unsecured"></div>
-                <span id="status-text">Unsecured</span>
-            </div>
-            <button id="lock-btn">🔒 Set Password</button>
-            <button id="export-btn">Export Notes</button>
-        </div>
-        
-        <div id="welcome-screen">
-            <h2>Welcome to Secure Notes</h2>
-            <p>Create a new note or select an existing one from the sidebar.</p>
-            <p>For maximum security, set an encryption password by clicking 🔒 Set Password.</p>
-        </div>
-    </div>
-    
-    <!-- Delete Confirmation Modal -->
-    <div id="delete-modal" class="modal">
-        <div class="modal-content">
-            <h3 class="modal-title">Delete Note</h3>
-            <p>Are you sure you want to delete this note? This action cannot be undone.</p>
-            <div class="modal-buttons">
-                <button id="cancel-delete" class="modal-btn cancel-btn">Cancel</button>
-                <button id="confirm-delete" class="modal-btn confirm-btn">Delete</button>
+        <!-- Text color -->
+        <div class="dropdown">
+            <button class="tool-btn">🎨</button>
+            <div class="dropdown-content">
+                <button onclick="setTextColor('#e0e0e0')">White</button>
+                <button onclick="setTextColor('#569cd6')">Blue</button>
+                <button onclick="setTextColor('#ce9178')">Orange</button>
+                <button onclick="setTextColor('#4ec9b0')">Green</button>
             </div>
         </div>
     </div>
     
-    <!-- Password Modal -->
-    <div id="password-modal" class="modal">
-        <div class="modal-content">
-            <h3 class="modal-title">Set Encryption Password</h3>
-            <p>Create a strong password to encrypt your notes. If you forget this password, your notes cannot be recovered!</p>
-            <input type="password" id="password-input" class="password-input" placeholder="Enter password">
-            <input type="password" id="confirm-password-input" class="password-input" placeholder="Confirm password">
-            <div id="password-message" class="system-message" style="display: none;"></div>
-            <div class="modal-buttons">
-                <button id="cancel-password" class="modal-btn cancel-btn">Cancel</button>
-                <button id="confirm-password" class="modal-btn confirm-btn">Set Password</button>
-            </div>
-        </div>
+    <div id="editor-container">
+        <input type="text" id="note-title-input" placeholder="Note Title">
+        <div id="editor" contenteditable="true" placeholder="Start typing your note here..."></div>
     </div>
     
-    <!-- Unlock Modal -->
-    <div id="unlock-modal" class="modal">
-        <div class="modal-content">
-            <h3 class="modal-title">Unlock Notes</h3>
-            <p>Enter your password to access your encrypted notes.</p>
-            <input type="password" id="unlock-password-input" class="password-input" placeholder="Enter password">
-            <div id="unlock-message" class="system-message" style="display: none;"></div>
-            <div class="modal-buttons">
-                <button id="unlock-password" class="modal-btn confirm-btn">Unlock</button>
-            </div>
+    <div id="footer">
+        <div class="encryption-status">
+            <div id="status-indicator" class="status-indicator status-unsecured"></div>
+            <span id="status-text">Unsecured</span>
         </div>
+        <button id="lock-btn">🔒 Set Password</button>
+        <button id="export-btn">Export Notes</button>
     </div>
+    
+    <div id="welcome-screen">
+        <h2>Welcome to Secure Notes</h2>
+        <p>Create a new note or select an existing one from the sidebar.</p>
+        <p>For maximum security, set an encryption password by clicking 🔒 Set Password.</p>
+    </div>
+</div>
 
     <script>
-        // Crypto utilities for secure encryption
-        const cryptoUtils = {
-            // Generate a salt for password derivation
-            generateSalt: async function() {
-                return window.crypto.getRandomValues(new Uint8Array(16));
-            },
-            
-            // Convert a string to an ArrayBuffer
-            str2ab: function(str) {
-                const encoder = new TextEncoder();
-                return encoder.encode(str);
-            },
-            
-            // Convert an ArrayBuffer to a hex string
-            ab2hex: function(buffer) {
-                return Array.from(new Uint8Array(buffer))
-                    .map(b => b.toString(16).padStart(2, '0'))
-                    .join('');
-            },
-            
-            // Convert a hex string to an ArrayBuffer
-            hex2ab: function(hex) {
-                const bytes = new Uint8Array(hex.length / 2);
-                for (let i = 0; i < hex.length; i += 2) {
-                    bytes[i/2] = parseInt(hex.substring(i, i + 2), 16);
-                }
-                return bytes;
-            },
-            
-            // Derive a key from a password and salt using PBKDF2
-            deriveKey: async function(password, salt) {
-                const keyMaterial = await window.crypto.subtle.importKey(
-                    "raw",
-                    this.str2ab(password),
-                    { name: "PBKDF2" },
-                    false,
-                    ["deriveBits", "deriveKey"]
-                );
-                
-                return window.crypto.subtle.deriveKey(
-                    {
-                        name: "PBKDF2",
-                        salt: salt,
-                        iterations: 100000, // High iteration count for security
-                        hash: "SHA-256"
-                    },
-                    keyMaterial,
-                    { name: "AES-GCM", length: 256 },
-                    false,
-                    ["encrypt", "decrypt"]
-                );
-            },
-            
-            // Encrypt data using AES-GCM
-            encrypt: async function(data, password) {
-                try {
-                    const salt = await this.generateSalt();
-                    const key = await this.deriveKey(password, salt);
-                    const iv = window.crypto.getRandomValues(new Uint8Array(12)); // AES-GCM recommends 12 bytes for IV
-                    
-                    const encryptedContent = await window.crypto.subtle.encrypt(
-                        {
-                            name: "AES-GCM",
-                            iv: iv
-                        },
-                        key,
-                        this.str2ab(data)
-                    );
-                    
-                    // Return a single object with all the information needed to decrypt
-                    return {
-                        version: 1, // For future upgrades
-                        salt: this.ab2hex(salt),
-                        iv: this.ab2hex(iv),
-                        data: this.ab2hex(encryptedContent)
-                    };
-                } catch (e) {
-                    console.error("Encryption failed:", e);
-                    throw e;
-                }
-            },
-            
-            // Decrypt data using AES-GCM
-            decrypt: async function(encryptedData, password) {
-                try {
-                    // Parse the encrypted data object
-                    const { salt, iv, data } = encryptedData;
-                    
-                    // Convert hex strings back to ArrayBuffers
-                    const saltBuffer = this.hex2ab(salt);
-                    const ivBuffer = this.hex2ab(iv);
-                    const dataBuffer = this.hex2ab(data);
-                    
-                    // Derive the key from the password and salt
-                    const key = await this.deriveKey(password, saltBuffer);
-                    
-                    // Decrypt the data
-                    const decryptedContent = await window.crypto.subtle.decrypt(
-                        {
-                            name: "AES-GCM",
-                            iv: ivBuffer
-                        },
-                        key,
-                        dataBuffer
-                    );
-                    
-                    // Convert the decrypted ArrayBuffer back to a string
-                    const decoder = new TextDecoder();
-                    return decoder.decode(decryptedContent);
-                } catch (e) {
-                    console.error("Decryption failed:", e);
-                    throw e;
-                }
-            }
-        };
-
-        // Store only a hash of the password (only for verification, not for decryption)
-        async function storePasswordHash(password) {
-            try {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(password);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                localStorage.setItem('notesMasterPasswordHash', hashHex);
-            } catch (e) {
-                console.error('Error hashing password:', e);
-            }
-        }
-
-        // Verify a provided password against the stored hash
-        async function verifyPassword(password) {
-            try {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(password);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                return hashHex === localStorage.getItem('notesMasterPasswordHash');
-            } catch (e) {
-                console.error('Error verifying password:', e);
-                return false;
-            }
-        }
+// Crypto utilities for secure encryption
+const cryptoUtils = {
+    // Generate a salt for password derivation
+    generateSalt: async function() {
+        return window.crypto.getRandomValues(new Uint8Array(16));
+    },
     
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggle-btn');
-        const newNoteBtn = document.getElementById('new-note-btn');
-        const notesList = document.getElementById('notes-list');
-        const noteTitleInput = document.getElementById('note-title-input');
-        const editor = document.getElementById('editor');
-        const editorContainer = document.getElementById('editor-container');
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const exportBtn = document.getElementById('export-btn');
-        const lockBtn = document.getElementById('lock-btn');
-        const deleteModal = document.getElementById('delete-modal');
-        const cancelDeleteBtn = document.getElementById('cancel-delete');
-        const confirmDeleteBtn = document.getElementById('confirm-delete');
-        const passwordModal = document.getElementById('password-modal');
-        const cancelPasswordBtn = document.getElementById('cancel-password');
-        const confirmPasswordBtn = document.getElementById('confirm-password');
-        const passwordInput = document.getElementById('password-input');
-        const confirmPasswordInput = document.getElementById('confirm-password-input');
-        const passwordMessage = document.getElementById('password-message');
-        const unlockModal = document.getElementById('unlock-modal');
-        const unlockPasswordInput = document.getElementById('unlock-password-input');
-        const unlockButton = document.getElementById('unlock-password');
-        const unlockMessage = document.getElementById('unlock-message');
-        const statusIndicator = document.getElementById('status-indicator');
-        const statusText = document.getElementById('status-text');
+    // Convert a string to an ArrayBuffer
+    str2ab: function(str) {
+        const encoder = new TextEncoder();
+        return encoder.encode(str);
+    },
+    
+    // Convert an ArrayBuffer to a hex string
+    ab2hex: function(buffer) {
+        return Array.from(new Uint8Array(buffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+    },
+    
+    // Convert a hex string to an ArrayBuffer
+    hex2ab: function(hex) {
+        const bytes = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < hex.length; i += 2) {
+            bytes[i/2] = parseInt(hex.substring(i, i + 2), 16);
+        }
+        return bytes;
+    },
+    
+    // Derive a key from a password and salt using PBKDF2
+    deriveKey: async function(password, salt) {
+        const keyMaterial = await window.crypto.subtle.importKey(
+            "raw",
+            this.str2ab(password),
+            { name: "PBKDF2" },
+            false,
+            ["deriveBits", "deriveKey"]
+        );
         
-        // Add unlock button event listener here so it works immediately
-        unlockButton.addEventListener('click', unlockNotes);
+        return window.crypto.subtle.deriveKey(
+            {
+                name: "PBKDF2",
+                salt: salt,
+                iterations: 100000, // High iteration count for security
+                hash: "SHA-256"
+            },
+            keyMaterial,
+            { name: "AES-GCM", length: 256 },
+            false,
+            ["encrypt", "decrypt"]
+        );
+    },
+    
+    // Encrypt data using AES-GCM
+    encrypt: async function(data, password) {
+        try {
+            const salt = await this.generateSalt();
+            const key = await this.deriveKey(password, salt);
+            const iv = window.crypto.getRandomValues(new Uint8Array(12)); // AES-GCM recommends 12 bytes for IV
+            
+            const encryptedContent = await window.crypto.subtle.encrypt(
+                {
+                    name: "AES-GCM",
+                    iv: iv
+                },
+                key,
+                this.str2ab(data)
+            );
+            
+            // Return a single object with all the information needed to decrypt
+            return {
+                version: 1, // For future upgrades
+                salt: this.ab2hex(salt),
+                iv: this.ab2hex(iv),
+                data: this.ab2hex(encryptedContent)
+            };
+        } catch (e) {
+            console.error("Encryption failed:", e);
+            throw e;
+        }
+    },
+    
+    // Decrypt data using AES-GCM
+    decrypt: async function(encryptedData, password) {
+        try {
+            // Parse the encrypted data object
+            const { salt, iv, data } = encryptedData;
+            
+            // Convert hex strings back to ArrayBuffers
+            const saltBuffer = this.hex2ab(salt);
+            const ivBuffer = this.hex2ab(iv);
+            const dataBuffer = this.hex2ab(data);
+            
+            // Derive the key from the password and salt
+            const key = await this.deriveKey(password, saltBuffer);
+            
+            // Decrypt the data
+            const decryptedContent = await window.crypto.subtle.decrypt(
+                {
+                    name: "AES-GCM",
+                    iv: ivBuffer
+                },
+                key,
+                dataBuffer
+            );
+            
+            // Convert the decrypted ArrayBuffer back to a string
+            const decoder = new TextDecoder();
+            return decoder.decode(decryptedContent);
+        } catch (e) {
+            console.error("Decryption failed:", e);
+            throw e;
+        }
+    }
+};
+
+// Store only a hash of the password (only for verification, not for decryption)
+async function storePasswordHash(password) {
+    try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        localStorage.setItem('notesMasterPasswordHash', hashHex);
+    } catch (e) {
+        console.error('Error hashing password:', e);
+    }
+}
+
+// Verify a provided password against the stored hash
+async function verifyPassword(password) {
+    try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex === localStorage.getItem('notesMasterPasswordHash');
+    } catch (e) {
+        console.error('Error verifying password:', e);
+        return false;
+    }
+}
+
+const sidebar = document.getElementById('sidebar');
+const toggleBtn = document.getElementById('toggle-btn');
+const newNoteBtn = document.getElementById('new-note-btn');
+const notesList = document.getElementById('notes-list');
+const noteTitleInput = document.getElementById('note-title-input');
+const editor = document.getElementById('editor');
+const editorContainer = document.getElementById('editor-container');
+const welcomeScreen = document.getElementById('welcome-screen');
+const exportBtn = document.getElementById('export-btn');
+const lockBtn = document.getElementById('lock-btn');
+const deleteModal = document.getElementById('delete-modal');
+const cancelDeleteBtn = document.getElementById('cancel-delete');
+const confirmDeleteBtn = document.getElementById('confirm-delete');
+const passwordModal = document.getElementById('password-modal');
+const cancelPasswordBtn = document.getElementById('cancel-password');
+const confirmPasswordBtn = document.getElementById('confirm-password');
+const passwordInput = document.getElementById('password-input');
+const confirmPasswordInput = document.getElementById('confirm-password-input');
+const passwordMessage = document.getElementById('password-message');
+const unlockModal = document.getElementById('unlock-modal');
+const unlockPasswordInput = document.getElementById('unlock-password-input');
+const unlockButton = document.getElementById('unlock-password');
+const unlockMessage = document.getElementById('unlock-message');
+const statusIndicator = document.getElementById('status-indicator');
+const statusText = document.getElementById('status-text');
+
+// Add unlock button event listener here so it works immediately
+unlockButton.addEventListener('click', unlockNotes);
+
+let currentNoteId = null;
+let noteToDeleteId = null;
+let notes = [];
+let isEncrypted = false;
+
+function init() {
+    // Check if we have encrypted notes
+    if (localStorage.getItem('notesMasterPasswordHash')) {
+        isEncrypted = true;
+        updateEncryptionStatus();
+        showUnlockModal();
+    } else {
+        loadNotes();
+        setupEventListeners();
         
-        let currentNoteId = null;
-        let noteToDeleteId = null;
-        let notes = [];
-        let isEncrypted = false;
+        if (notes.length === 0) {
+            showWelcomeScreen();
+        } else {
+            loadNote(notes[0].id);
+        }
+    }
+}
+
+function setupEventListeners() {
+    // Toggle sidebar functionality
+    const toggleSidebar = document.getElementById('toggle-sidebar');
+    toggleSidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        document.getElementById('main-content').classList.toggle('sidebar-visible');
         
-        function init() {
-            // Check if we have encrypted notes
-            if (localStorage.getItem('notesMasterPasswordHash')) {
-                isEncrypted = true;
-                updateEncryptionStatus();
-                showUnlockModal();
-            } else {
-                loadNotes();
-                setupEventListeners();
-                
-                if (notes.length === 0) {
-                    showWelcomeScreen();
-                } else {
-                    loadNote(notes[0].id);
-                }
+        // Update toggle button icon
+        if (sidebar.classList.contains('visible')) {
+            toggleSidebar.innerHTML = '&times;'; // × sign when sidebar is open
+        } else {
+            toggleSidebar.innerHTML = '&#9776;'; // ☰ menu icon when sidebar is closed
+        }
+    });
+    
+    // Close sidebar when clicking on a note (for mobile)
+    const noteCards = document.querySelectorAll('.note-card');
+    noteCards.forEach(card => {
+        card.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('visible');
+                document.getElementById('main-content').classList.remove('sidebar-visible');
+                toggleSidebar.innerHTML = '&#9776;';
             }
+        });
+    });
+    
+    newNoteBtn.addEventListener('click', createNewNote);
+    
+    noteTitleInput.addEventListener('input', saveCurrentNote);
+    editor.addEventListener('input', saveCurrentNote);
+    
+    exportBtn.addEventListener('click', exportNotes);
+    lockBtn.addEventListener('click', showPasswordModal);
+    
+    // Delete modal event listeners
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteModal.style.display = 'none';
+        noteToDeleteId = null;
+    });
+    
+    confirmDeleteBtn.addEventListener('click', () => {
+        if (noteToDeleteId) {
+            deleteNote(noteToDeleteId);
+            deleteModal.style.display = 'none';
+            noteToDeleteId = null;
+        }
+    });
+    
+    // Password modal event listeners
+    cancelPasswordBtn.addEventListener('click', () => {
+        passwordModal.style.display = 'none';
+        passwordInput.value = '';
+        confirmPasswordInput.value = '';
+        passwordMessage.style.display = 'none';
+    });
+    
+    confirmPasswordBtn.addEventListener('click', setEncryptionPassword);
+    
+    // Add window resize listener to handle transitions between mobile and desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('show-mobile');
+        }
+    });
+}
+
+function showPasswordModal() {
+    passwordModal.style.display = 'flex';
+}
+
+function showUnlockModal() {
+    unlockModal.style.display = 'flex';
+}
+
+async function setEncryptionPassword() {
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    
+    if (password.length < 8) {
+        showPasswordMessage('Password must be at least 8 characters long', 'error');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        showPasswordMessage('Passwords do not match', 'error');
+        return;
+    }
+    
+    try {
+        // Store the password hash for verification
+        await storePasswordHash(password);
+        
+        // Store the password in sessionStorage for this session
+        sessionStorage.setItem('currentSessionPassword', password);
+        
+        // Re-encrypt any existing notes with the new password
+        await saveNotes();
+        
+        isEncrypted = true;
+        updateEncryptionStatus();
+        
+        passwordModal.style.display = 'none';
+        passwordInput.value = '';
+        confirmPasswordInput.value = '';
+        
+        showPasswordMessage('', 'success');
+    } catch (error) {
+        console.error('Error setting encryption password:', error);
+        showPasswordMessage('Failed to set password. Please try again.', 'error');
+    }
+}
+
+function showPasswordMessage(message, type) {
+    passwordMessage.textContent = message;
+    passwordMessage.style.display = message ? 'block' : 'none';
+    passwordMessage.style.color = type === 'error' ? '#ce4242' : '#4ec9b0';
+}
+
+function showUnlockMessage(message, type) {
+    unlockMessage.textContent = message;
+    unlockMessage.style.display = message ? 'block' : 'none';
+    unlockMessage.style.color = type === 'error' ? '#ce4242' : '#4ec9b0';
+}
+
+async function unlockNotes() {
+    const password = unlockPasswordInput.value;
+    
+    if (!password) {
+        showUnlockMessage('Please enter your password', 'error');
+        return;
+    }
+    
+    try {
+        const isPasswordValid = await verifyPassword(password);
+        
+        if (!isPasswordValid) {
+            showUnlockMessage('Incorrect password', 'error');
+            return;
         }
         
-        function setupEventListeners() {
-            toggleBtn.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    // On mobile, show/hide the sidebar
-                    sidebar.classList.toggle('show-mobile');
-                } else {
-                    // On desktop, use the hover behavior
-                    sidebar.classList.toggle('hidden');
-                }
-            });
-            
-            newNoteBtn.addEventListener('click', createNewNote);
-            
-            noteTitleInput.addEventListener('input', saveCurrentNote);
-            editor.addEventListener('input', saveCurrentNote);
-            
-            exportBtn.addEventListener('click', exportNotes);
-            lockBtn.addEventListener('click', showPasswordModal);
-            
-            // Delete modal event listeners
-            cancelDeleteBtn.addEventListener('click', () => {
-                deleteModal.style.display = 'none';
-                noteToDeleteId = null;
-            });
-            
-            confirmDeleteBtn.addEventListener('click', () => {
-                if (noteToDeleteId) {
-                    deleteNote(noteToDeleteId);
-                    deleteModal.style.display = 'none';
-                    noteToDeleteId = null;
-                }
-            });
-            
-            // Password modal event listeners
-            cancelPasswordBtn.addEventListener('click', () => {
-                passwordModal.style.display = 'none';
-                passwordInput.value = '';
-                confirmPasswordInput.value = '';
-                passwordMessage.style.display = 'none';
-            });
-            
-            confirmPasswordBtn.addEventListener('click', setEncryptionPassword);
-            
-            // Add window resize listener to handle transitions between mobile and desktop
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    sidebar.classList.remove('show-mobile');
-                }
-            });
+        // Store the password in sessionStorage for this session
+        sessionStorage.setItem('currentSessionPassword', password);
+        
+        // Load the notes
+        await loadNotes();
+        setupEventListeners();
+        
+        if (notes.length === 0) {
+            showWelcomeScreen();
+        } else {
+            loadNote(notes[0].id);
         }
         
-        function showPasswordModal() {
-            passwordModal.style.display = 'flex';
-        }
+        unlockModal.style.display = 'none';
+        unlockPasswordInput.value = '';
+        showUnlockMessage('', 'success');
         
-        function showUnlockModal() {
-            unlockModal.style.display = 'flex';
-        }
-        
-        async function setEncryptionPassword() {
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            
-            if (password.length < 8) {
-                showPasswordMessage('Password must be at least 8 characters long', 'error');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showPasswordMessage('Passwords do not match', 'error');
-                return;
-            }
-            
-            try {
-                // Store the password hash for verification
-                await storePasswordHash(password);
-                
-                // Store the password in sessionStorage for this session
-                sessionStorage.setItem('currentSessionPassword', password);
-                
-                // Re-encrypt any existing notes with the new password
-                await saveNotes();
-                
-                isEncrypted = true;
-                updateEncryptionStatus();
-                
-                passwordModal.style.display = 'none';
-                passwordInput.value = '';
-                confirmPasswordInput.value = '';
-                
-                showPasswordMessage('', 'success');
-            } catch (error) {
-                console.error('Error setting encryption password:', error);
-                showPasswordMessage('Failed to set password. Please try again.', 'error');
-            }
-        }
-        
-        function showPasswordMessage(message, type) {
-            passwordMessage.textContent = message;
-            passwordMessage.style.display = message ? 'block' : 'none';
-            passwordMessage.style.color = type === 'error' ? '#ce4242' : '#4ec9b0';
-        }
-        
-        function showUnlockMessage(message, type) {
-            unlockMessage.textContent = message;
-            unlockMessage.style.display = message ? 'block' : 'none';
-            unlockMessage.style.color = type === 'error' ? '#ce4242' : '#4ec9b0';
-        }
-        
-        async function unlockNotes() {
-            const password = unlockPasswordInput.value;
+    } catch (error) {
+        console.error('Error unlocking notes:', error);
+        showUnlockMessage('Failed to unlock notes. Please try again.', 'error');
+    }
+}
+
+function updateEncryptionStatus() {
+    if (isEncrypted) {
+        statusIndicator.classList.remove('status-unsecured');
+        statusIndicator.classList.add('status-secured');
+        statusText.textContent = 'Secured';
+        lockBtn.textContent = '🔒 Change Password';
+    } else {
+        statusIndicator.classList.remove('status-secured');
+        statusIndicator.classList.add('status-unsecured');
+        statusText.textContent = 'Unsecured';
+        lockBtn.textContent = '🔒 Set Password';
+    }
+}
+
+function createNewNote() {
+    const newNote = {
+        id: Date.now().toString(),
+        title: 'Untitled Note',
+        content: '',
+        created: new Date().toISOString()
+    };
+    
+    notes.unshift(newNote);
+    saveNotes();
+    renderNotesList();
+    loadNote(newNote.id);
+}
+
+async function loadNotes() {
+    const encryptedNotesData = localStorage.getItem('notes');
+    
+    if (!encryptedNotesData) {
+        notes = [];
+        renderNotesList();
+        return;
+    }
+    
+    try {
+        if (isEncrypted) {
+            // Get the session password
+            const password = sessionStorage.getItem('currentSessionPassword');
             
             if (!password) {
-                showUnlockMessage('Please enter your password', 'error');
-                return;
+                throw new Error('No password available to decrypt notes');
             }
             
+            // Parse the encrypted data
+            const encryptedData = JSON.parse(encryptedNotesData);
+            
+            // Decrypt the notes
+            const decryptedNotes = await cryptoUtils.decrypt(encryptedData, password);
+            notes = JSON.parse(decryptedNotes);
+        } else {
+            // For backwards compatibility - handle previously unencrypted notes
             try {
-                const isPasswordValid = await verifyPassword(password);
-                
-                if (!isPasswordValid) {
-                    showUnlockMessage('Incorrect password', 'error');
-                    return;
-                }
-                
-                // Store the password in sessionStorage for this session
-                sessionStorage.setItem('currentSessionPassword', password);
-                
-                // Load the notes
-                await loadNotes();
-                setupEventListeners();
-                
-                if (notes.length === 0) {
-                    showWelcomeScreen();
-                } else {
-                    loadNote(notes[0].id);
-                }
-                
-                unlockModal.style.display = 'none';
-                unlockPasswordInput.value = '';
-                showUnlockMessage('', 'success');
-                
-            } catch (error) {
-                console.error('Error unlocking notes:', error);
-                showUnlockMessage('Failed to unlock notes. Please try again.', 'error');
-            }
-        }
-        
-        function updateEncryptionStatus() {
-            if (isEncrypted) {
-                statusIndicator.classList.remove('status-unsecured');
-                statusIndicator.classList.add('status-secured');
-                statusText.textContent = 'Secured';
-                lockBtn.textContent = '🔒 Change Password';
-            } else {
-                statusIndicator.classList.remove('status-secured');
-                statusIndicator.classList.add('status-unsecured');
-                statusText.textContent = 'Unsecured';
-                lockBtn.textContent = '🔒 Set Password';
-            }
-        }
-        
-        function createNewNote() {
-            const newNote = {
-                id: Date.now().toString(),
-                title: 'Untitled Note',
-                content: '',
-                created: new Date().toISOString()
-            };
-            
-            notes.unshift(newNote);
-            saveNotes();
-            renderNotesList();
-            loadNote(newNote.id);
-        }
-        
-        async function loadNotes() {
-            const encryptedNotesData = localStorage.getItem('notes');
-            
-            if (!encryptedNotesData) {
+                notes = JSON.parse(encryptedNotesData);
+            } catch {
                 notes = [];
-                renderNotesList();
-                return;
-            }
-            
-            try {
-                if (isEncrypted) {
-                    // Get the session password
-                    const password = sessionStorage.getItem('currentSessionPassword');
-                    
-                    if (!password) {
-                        throw new Error('No password available to decrypt notes');
-                    }
-                    
-                    // Parse the encrypted data
-                    const encryptedData = JSON.parse(encryptedNotesData);
-                    
-                    // Decrypt the notes
-                    const decryptedNotes = await cryptoUtils.decrypt(encryptedData, password);
-                    notes = JSON.parse(decryptedNotes);
-                } else {
-                    // For backwards compatibility - handle previously unencrypted notes
-                    try {
-                        notes = JSON.parse(encryptedNotesData);
-                    } catch {
-                        notes = [];
-                    }
-                }
-                
-                renderNotesList();
-            } catch (e) {
-                console.error('Error loading notes:', e);
-                alert('Error loading notes. Please check your password and try again.');
-                notes = [];
-                renderNotesList();
             }
         }
         
-        async function saveNotes() {
-            try {
-                if (isEncrypted) {
-                    // Get the session password
-                    const password = sessionStorage.getItem('currentSessionPassword');
-                    
-                    if (!password) {
-                        throw new Error('No password available to encrypt notes');
-                    }
-                    
-                    // Convert notes to string
-                    const notesString = JSON.stringify(notes);
-                    
-                    // Encrypt the notes
-                    const encryptedData = await cryptoUtils.encrypt(notesString, password);
-                    
-                    localStorage.setItem('notes', JSON.stringify(encryptedData));
-                } else {
-                    // Store unencrypted for backwards compatibility
-                    localStorage.setItem('notes', JSON.stringify(notes));
-                }
-            } catch (e) {
-                console.error('Error saving notes:', e);
-                alert('Error saving notes. Please try again.');
+        renderNotesList();
+    } catch (e) {
+        console.error('Error loading notes:', e);
+        alert('Error loading notes. Please check your password and try again.');
+        notes = [];
+        renderNotesList();
+    }
+}
+
+async function saveNotes() {
+    try {
+        if (isEncrypted) {
+            // Get the session password
+            const password = sessionStorage.getItem('currentSessionPassword');
+            
+            if (!password) {
+                throw new Error('No password available to encrypt notes');
             }
+            
+            // Convert notes to string
+            const notesString = JSON.stringify(notes);
+            
+            // Encrypt the notes
+            const encryptedData = await cryptoUtils.encrypt(notesString, password);
+            
+            localStorage.setItem('notes', JSON.stringify(encryptedData));
+        } else {
+            // Store unencrypted for backwards compatibility
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+    } catch (e) {
+        console.error('Error saving notes:', e);
+        alert('Error saving notes. Please try again.');
+    }
+}
+
+function saveCurrentNote() {
+    if (!currentNoteId) return;
+    
+    const noteIndex = notes.findIndex(note => note.id === currentNoteId);
+    if (noteIndex === -1) return;
+    
+    notes[noteIndex].title = noteTitleInput.value || 'Untitled Note';
+    notes[noteIndex].content = editor.innerHTML;
+    notes[noteIndex].updated = new Date().toISOString();
+    
+    saveNotes();
+    renderNotesList();
+}
+
+function loadNote(noteId) {
+    const note = notes.find(note => note.id === noteId);
+    if (!note) return;
+    
+    currentNoteId = noteId;
+    noteTitleInput.value = note.title;
+    editor.innerHTML = note.content;
+    
+    // Hide welcome screen and show editor
+    hideWelcomeScreen();
+    
+    // Update active state in sidebar
+    const noteCards = document.querySelectorAll('.note-card');
+    noteCards.forEach(card => {
+        if (card.dataset.id === noteId) {
+            card.classList.add('active');
+        } else {
+            card.classList.remove('active');
+        }
+    });
+}
+
+function deleteNote(noteId) {
+    const noteIndex = notes.findIndex(note => note.id === noteId);
+    if (noteIndex === -1) return;
+    
+    notes.splice(noteIndex, 1);
+    saveNotes();
+    renderNotesList();
+    
+    if (notes.length === 0) {
+        currentNoteId = null;
+        showWelcomeScreen();
+    } else if (currentNoteId === noteId) {
+        loadNote(notes[0].id);
+    }
+}
+
+function showDeleteModal(noteId) {
+    noteToDeleteId = noteId;
+    deleteModal.style.display = 'flex';
+}
+
+function renderNotesList() {
+    notesList.innerHTML = '';
+    
+    notes.forEach(note => {
+        const noteCard = document.createElement('div');
+        noteCard.className = 'note-card';
+        noteCard.dataset.id = note.id;
+        if (note.id === currentNoteId) {
+            noteCard.classList.add('active');
         }
         
-        function saveCurrentNote() {
-            if (!currentNoteId) return;
-            
-            const noteIndex = notes.findIndex(note => note.id === currentNoteId);
-            if (noteIndex === -1) return;
-            
-            notes[noteIndex].title = noteTitleInput.value || 'Untitled Note';
-            notes[noteIndex].content = editor.innerHTML;
-            notes[noteIndex].updated = new Date().toISOString();
-            
-            saveNotes();
-            renderNotesList();
-        }
+        const noteContent = document.createElement('div');
+        noteContent.className = 'note-content';
         
-        function loadNote(noteId) {
-            const note = notes.find(note => note.id === noteId);
-            if (!note) return;
-            
-            currentNoteId = noteId;
-            noteTitleInput.value = note.title;
-            editor.innerHTML = note.content;
-            
-            // Hide welcome screen and show editor
-            hideWelcomeScreen();
-            
-            // Update active state in sidebar
-            const noteCards = document.querySelectorAll('.note-card');
-            noteCards.forEach(card => {
-                if (card.dataset.id === noteId) {
-                    card.classList.add('active');
-                } else {
-                    card.classList.remove('active');
-                }
-            });
-        }
+        const noteTitle = document.createElement('div');
+        noteTitle.className = 'note-title';
+        noteTitle.textContent = note.title;
         
-        function deleteNote(noteId) {
-            const noteIndex = notes.findIndex(note => note.id === noteId);
-            if (noteIndex === -1) return;
+        const notePreview = document.createElement('div');
+        notePreview.className = 'note-preview';
+        // Strip HTML for preview
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = note.content;
+        notePreview.textContent = tempDiv.textContent.substring(0, 50);
+        
+        noteContent.appendChild(noteTitle);
+        noteContent.appendChild(notePreview);
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showDeleteModal(note.id);
+        });
+        
+        noteCard.appendChild(noteContent);
+        noteCard.appendChild(deleteBtn);
+        
+        noteCard.addEventListener('click', () => {
+            loadNote(note.id);
             
-            notes.splice(noteIndex, 1);
-            saveNotes();
-            renderNotesList();
-            
-            if (notes.length === 0) {
-                currentNoteId = null;
-                showWelcomeScreen();
-            } else if (currentNoteId === noteId) {
-                loadNote(notes[0].id);
+            // Close sidebar on mobile when a note is selected
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('visible');
+                document.getElementById('main-content').classList.remove('sidebar-visible');
+                document.getElementById('toggle-sidebar').innerHTML = '&#9776;';
             }
-        }
+        });
         
-        function showDeleteModal(noteId) {
-            noteToDeleteId = noteId;
-            deleteModal.style.display = 'flex';
-        }
+        notesList.appendChild(noteCard);
+    });
+}
+
+function showWelcomeScreen() {
+    editorContainer.style.display = 'none';
+    welcomeScreen.style.display = 'flex';
+}
+
+function hideWelcomeScreen() {
+    editorContainer.style.display = 'flex';
+    welcomeScreen.style.display = 'none';
+}
+
+function setFontSize(size) {
+    document.execCommand('fontSize', false, size);
+}
+
+function setTextColor(color) {
+    document.execCommand('foreColor', false, color);
+}
+
+function exportNotes() {
+    try {
+        const notesData = notes.map(note => ({
+            title: note.title,
+            content: note.content,
+            created: note.created,
+            updated: note.updated
+        }));
         
-        function renderNotesList() {
-            notesList.innerHTML = '';
-            
-            notes.forEach(note => {
-                const noteCard = document.createElement('div');
-                noteCard.className = 'note-card';
-                noteCard.dataset.id = note.id;
-                if (note.id === currentNoteId) {
-                    noteCard.classList.add('active');
-                }
-                
-                const noteContent = document.createElement('div');
-                noteContent.className = 'note-content';
-                
-                const noteTitle = document.createElement('div');
-                noteTitle.className = 'note-title';
-                noteTitle.textContent = note.title;
-                
-                const notePreview = document.createElement('div');
-                notePreview.className = 'note-preview';
-                // Strip HTML for preview
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = note.content;
-                notePreview.textContent = tempDiv.textContent.substring(0, 50);
-                
-                noteContent.appendChild(noteTitle);
-                noteContent.appendChild(notePreview);
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '&times;';
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showDeleteModal(note.id);
-                });
-                
-                noteCard.appendChild(noteContent);
-                noteCard.appendChild(deleteBtn);
-                
-                noteCard.addEventListener('click', () => {
-                    loadNote(note.id);
-                });
-                
-                notesList.appendChild(noteCard);
-            });
-        }
-        
-        function showWelcomeScreen() {
-            editorContainer.style.display = 'none';
-            welcomeScreen.style.display = 'flex';
-        }
-        
-        function hideWelcomeScreen() {
-            editorContainer.style.display = 'flex';
-            welcomeScreen.style.display = 'none';
-        }
-        
-        function setFontSize(size) {
-            document.execCommand('fontSize', false, size);
-        }
-        
-        function setTextColor(color) {
-            document.execCommand('foreColor', false, color);
-        }
-        
-        function exportNotes() {
-            try {
-                const notesData = notes.map(note => ({
-                    title: note.title,
-                    content: note.content,
-                    created: note.created,
-                    updated: note.updated
-                }));
-                
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notesData, null, 2));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "secure-notes-export.json");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-            } catch (e) {
-                console.error('Error exporting notes:', e);
-                alert('Error exporting notes. Please try again.');
-            }
-        }
-        
-        // Initialize the app
-        init();
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notesData, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "secure-notes-export.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    } catch (e) {
+        console.error('Error exporting notes:', e);
+        alert('Error exporting notes. Please try again.');
+    }
+}
+
+// Initialize the app
+init();
     </script>
 </body>
 </html>
