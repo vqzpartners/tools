@@ -7,380 +7,500 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="cdn/images/favicon.png" type="image/x-icon">
     <style>
-        :root {
-            --bg-dark: #1e1e1e;
-            --sidebar-dark: #252526;
-            --text-color: #e0e0e0;
-            --accent-color: #569cd6;
-            --card-bg: #2d2d2d;
-            --button-bg: #3c3c3c;
-            --button-hover: #4e4e4e;
-            --delete-color: #ce4242;
-            --delete-hover: #e05050;
-        }
-        
-        body {
-            font-family: 'Roboto Mono', monospace;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            color: var(--text-color);
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
-        }
-        
-        #sidebar {
-            background-color: var(--sidebar-dark);
-            width: 250px;
-            transition: transform 0.3s ease;
-            height: 100vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        #sidebar.hidden {
-            transform: translateX(-250px);
-        }
-        
-        #sidebar-header {
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-        
-        #new-note-btn {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 15px;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        #new-note-btn:hover {
-            background-color: #4a88c7;
-        }
-        
-        .note-card {
-            padding: 10px 15px;
-            border-bottom: 1px solid #333;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        
-        .note-card:hover {
-            background-color: #333;
-        }
-        
-        .note-card.active {
-            background-color: #3a3d41;
-            border-left: 3px solid var(--accent-color);
-        }
-        
-        .note-content {
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .note-title {
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .note-preview {
-            color: #a0a0a0;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .delete-btn {
-            background-color: transparent;
-            color: var(--text-color);
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            opacity: 0.5;
-            padding: 0 0 0 8px;
-            transition: all 0.2s;
-        }
-        
-        .delete-btn:hover {
-            color: var(--delete-color);
-            opacity: 1;
-        }
-        
-        #main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow-y: auto;
-        }
-        
-        #toggle-btn {
-            background: var(--button-bg);
-            border: none;
-            color: var(--text-color);
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-        
-        #toggle-btn:hover {
-            background-color: var(--button-hover);
-        }
-        
-        #toolbar {
-            padding: 10px;
-            display: flex;
-            gap: 5px;
-            border-bottom: 1px solid #333;
-        }
-        
-        .tool-btn {
-            background: var(--button-bg);
-            border: none;
-            color: var(--text-color);
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        .tool-btn:hover {
-            background-color: var(--button-hover);
-        }
-        
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: var(--card-bg);
-            min-width: 120px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            z-index: 1;
-            border-radius: 4px;
-        }
-        
-        .dropdown-content button {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            padding: 8px 16px;
-            text-align: left;
-            width: 100%;
-            cursor: pointer;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .dropdown-content button:hover {
-            background-color: var(--button-hover);
-        }
-        
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        
-        #editor-container {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        #note-title-input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #444;
-            color: var(--text-color);
-            font-size: 1.5rem;
-            padding: 5px 0;
-            margin-bottom: 15px;
-            font-family: 'Roboto Mono', monospace;
-            width: 100%;
-        }
-        
-        #editor {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            font-size: 1rem;
-            line-height: 1.5;
-            resize: none;
-            padding: 10px 0;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        #editor:focus, #note-title-input:focus {
-            outline: none;
-        }
-        
-        #welcome-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        #footer {
-            padding: 10px;
-            text-align: right;
-            border-top: 1px solid #333;
-        }
-        
-        #export-btn, #lock-btn {
-            background-color: var(--button-bg);
-            color: var(--text-color);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Roboto Mono', monospace;
-            margin-left: 10px;
-        }
-        
-        #export-btn:hover, #lock-btn:hover {
-            background-color: var(--button-hover);
-        }
-        
-        #lock-btn {
-            background-color: var(--accent-color);
-        }
-        
-        #lock-btn:hover {
-            background-color: #4a88c7;
-        }
-        
-        [contenteditable=true]:empty:before {
-            content: attr(placeholder);
-            color: #666;
-            cursor: text;
-        }
-        
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 400px;
-            width: 80%;
-        }
-        
-        .modal-title {
-            margin-top: 0;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .modal-btn {
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Roboto Mono', monospace;
-            border: none;
-        }
-        
-        .cancel-btn {
-            background-color: var(--button-bg);
-            color: var(--text-color);
-        }
-        
-        .cancel-btn:hover {
-            background-color: var(--button-hover);
-        }
-        
-        .confirm-btn {
-            background-color: var(--delete-color);
-            color: white;
-        }
-        
-        .confirm-btn:hover {
-            background-color: var(--delete-hover);
-        }
-        
-        .password-input {
-            width: 100%;
-            padding: 8px;
-            margin-top: 10px;
-            background-color: var(--bg-dark);
-            border: 1px solid #444;
-            border-radius: 4px;
-            color: var(--text-color);
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .encryption-status {
-            display: flex;
-            align-items: center;
-            margin-right: auto;
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        
-        .status-secured {
-            background-color: #4ec9b0;
-        }
-        
-        .status-unsecured {
-            background-color: #ce9178;
-        }
-        
-        .system-message {
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
+:root {
+    --bg-dark: #1e1e1e;
+    --sidebar-dark: #252526;
+    --text-color: #e0e0e0;
+    --accent-color: #569cd6;
+    --card-bg: #2d2d2d;
+    --button-bg: #3c3c3c;
+    --button-hover: #4e4e4e;
+    --delete-color: #ce4242;
+    --delete-hover: #e05050;
+}
+
+body {
+    font-family: 'Roboto Mono', monospace;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+#sidebar {
+    background-color: var(--sidebar-dark);
+    width: 250px;
+    transition: transform 0.3s ease;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    z-index: 10;
+    transform: translateX(-220px); /* Hide by default but leave a hint */
+}
+
+#sidebar:hover {
+    transform: translateX(0); /* Show on hover */
+}
+
+#sidebar.hidden {
+    transform: translateX(-250px);
+}
+
+#sidebar-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+
+#new-note-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 15px;
+    font-family: 'Roboto Mono', monospace;
+}
+
+#new-note-btn:hover {
+    background-color: #4a88c7;
+}
+
+.note-card {
+    padding: 10px 15px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.note-card:hover {
+    background-color: #333;
+}
+
+.note-card.active {
+    background-color: #3a3d41;
+    border-left: 3px solid var(--accent-color);
+}
+
+.note-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.note-title {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.note-preview {
+    color: #a0a0a0;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.delete-btn {
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.5;
+    padding: 0 0 0 8px;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    color: var(--delete-color);
+    opacity: 1;
+}
+
+#main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+    margin-left: 30px; /* Space for the sidebar hint */
+    transition: margin-left 0.3s ease;
+}
+
+#sidebar:hover + #main-content {
+    margin-left: 250px;
+}
+
+#toggle-btn {
+    background: var(--button-bg);
+    border: none;
+    color: var(--text-color);
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+#toggle-btn:hover {
+    background-color: var(--button-hover);
+}
+
+#toolbar {
+    padding: 10px;
+    display: flex;
+    gap: 5px;
+    border-bottom: 1px solid #333;
+}
+
+.tool-btn {
+    background: var(--button-bg);
+    border: none;
+    color: var(--text-color);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.tool-btn:hover {
+    background-color: var(--button-hover);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--card-bg);
+    min-width: 120px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+}
+
+.dropdown-content button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    padding: 8px 16px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.dropdown-content button:hover {
+    background-color: var(--button-hover);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+#editor-container {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#note-title-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #444;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    padding: 5px 0;
+    margin-bottom: 15px;
+    font-family: 'Roboto Mono', monospace;
+    width: 100%;
+}
+
+#editor {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    line-height: 1.5;
+    resize: none;
+    padding: 10px 0;
+    font-family: 'Roboto Mono', monospace;
+}
+
+#editor:focus, #note-title-input:focus {
+    outline: none;
+}
+
+#welcome-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+#footer {
+    padding: 10px;
+    text-align: right;
+    border-top: 1px solid #333;
+}
+
+#export-btn, #lock-btn {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Roboto Mono', monospace;
+    margin-left: 10px;
+}
+
+#export-btn:hover, #lock-btn:hover {
+    background-color: var(--button-hover);
+}
+
+#lock-btn {
+    background-color: var(--accent-color);
+}
+
+#lock-btn:hover {
+    background-color: #4a88c7;
+}
+
+[contenteditable=true]:empty:before {
+    content: attr(placeholder);
+    color: #666;
+    cursor: text;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    width: 80%;
+}
+
+.modal-title {
+    margin-top: 0;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Roboto Mono', monospace;
+    border: none;
+}
+
+.cancel-btn {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+}
+
+.cancel-btn:hover {
+    background-color: var(--button-hover);
+}
+
+.confirm-btn {
+    background-color: var(--delete-color);
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: var(--delete-hover);
+}
+
+.password-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    background-color: var(--bg-dark);
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-family: 'Roboto Mono', monospace;
+}
+
+.encryption-status {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.status-secured {
+    background-color: #4ec9b0;
+}
+
+.status-unsecured {
+    background-color: #ce9178;
+}
+
+.system-message {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Media queries for mobile responsiveness */
+@media screen and (max-width: 768px) {
+    body {
+        flex-direction: column;
+        overflow: auto;
+    }
+    
+    #sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 60vh;
+        position: relative;
+        transform: none;
+        display: none; /* Hidden by default on mobile */
+    }
+    
+    #sidebar.show-mobile {
+        display: flex;
+    }
+    
+    #main-content {
+        margin-left: 0;
+        height: auto;
+        min-height: 60vh;
+    }
+    
+    #toolbar {
+        flex-wrap: wrap;
+    }
+    
+    .tool-btn, #toggle-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    #editor-container {
+        padding: 10px;
+    }
+    
+    #footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    #lock-btn, #export-btn {
+        margin: 5px 0;
+        width: 100%;
+    }
+    
+    .encryption-status {
+        margin-bottom: 10px;
+        margin-right: 0;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 90%;
+        max-width: none;
+    }
+    
+    /* Welcome screen adjustments */
+    #welcome-screen {
+        padding: 15px;
+    }
+    
+    #welcome-screen h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Additional mobile adjustments for smaller screens */
+@media screen and (max-width: 480px) {
+    .note-card {
+        padding: 8px;
+    }
+    
+    #note-title-input {
+        font-size: 1.2rem;
+    }
+    
+    .tool-btn, #toggle-btn {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+    }
+    
+    .modal-btn {
+        width: 100%;
+        margin-top: 5px;
+    }
+    
+    .dropdown-content {
+        min-width: 100px;
+    }
+    
+    /* Make sure password inputs are properly sized */
+    .password-input {
+        font-size: 16px; /* Prevent zoom on mobile */
+    }
+}
     </style>
 </head>
 <body>
@@ -659,6 +779,9 @@
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
         
+        // Add unlock button event listener here so it works immediately
+        unlockButton.addEventListener('click', unlockNotes);
+        
         let currentNoteId = null;
         let noteToDeleteId = null;
         let notes = [];
@@ -684,7 +807,13 @@
         
         function setupEventListeners() {
             toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('hidden');
+                if (window.innerWidth <= 768) {
+                    // On mobile, show/hide the sidebar
+                    sidebar.classList.toggle('show-mobile');
+                } else {
+                    // On desktop, use the hover behavior
+                    sidebar.classList.toggle('hidden');
+                }
             });
             
             newNoteBtn.addEventListener('click', createNewNote);
@@ -719,8 +848,12 @@
             
             confirmPasswordBtn.addEventListener('click', setEncryptionPassword);
             
-            // Unlock modal event listener
-            unlockButton.addEventListener('click', unlockNotes);
+            // Add window resize listener to handle transitions between mobile and desktop
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('show-mobile');
+                }
+            });
         }
         
         function showPasswordModal() {
@@ -906,7 +1039,7 @@
                     // Encrypt the notes
                     const encryptedData = await cryptoUtils.encrypt(notesString, password);
                     
-localStorage.setItem('notes', JSON.stringify(encryptedData));
+                    localStorage.setItem('notes', JSON.stringify(encryptedData));
                 } else {
                     // Store unencrypted for backwards compatibility
                     localStorage.setItem('notes', JSON.stringify(notes));
