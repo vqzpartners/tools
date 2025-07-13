@@ -185,7 +185,6 @@
       background-size: cover;
       background-position: center;
       border: 2px solid #333;
-      /* Enhanced quality settings for better rendering */
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
       image-rendering: pixelated;
@@ -328,13 +327,11 @@
       cursor: pointer;
     }
     
-    /* High resolution rendering class */
     .rendering {
       transform: scale(1);
       transform-origin: top left;
     }
     
-    /* Ensure high quality image rendering */
     .preview-photo.high-quality {
       image-rendering: -webkit-optimize-contrast;
       image-rendering: optimize-contrast;
@@ -788,18 +785,6 @@
       
       const scaleFactor = width / previewContainer.offsetWidth;
       
-      // Create a temporary high-resolution profile image element
-      const tempProfileImg = document.createElement('img');
-      if (highQualityProfileImage) {
-        tempProfileImg.src = highQualityProfileImage;
-        tempProfileImg.style.width = '48px';
-        tempProfileImg.style.height = '48px';
-        tempProfileImg.style.borderRadius = '50%';
-        tempProfileImg.style.objectFit = 'cover';
-        tempProfileImg.style.imageRendering = 'high-quality';
-        tempProfileImg.style.imageRendering = '-webkit-optimize-contrast';
-      }
-      
       // Wait for the image to load before rendering
       const renderImage = () => {
         const options = {
@@ -914,3 +899,6 @@
       link.click();
       document.body.removeChild(link);
     }
+  </script>
+</body>
+</html>
