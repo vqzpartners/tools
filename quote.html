@@ -780,19 +780,12 @@
       
       const scaleFactor = width / previewContainer.offsetWidth;
       
-      // Create a temporary container with higher quality profile image
-      const tempContainer = previewContainer.cloneNode(true);
-      tempContainer.style.position = 'absolute';
-      tempContainer.style.left = '-9999px';
-      tempContainer.style.top = '-9999px';
-      tempContainer.style.width = previewContainer.offsetWidth + 'px';
-      tempContainer.style.height = previewContainer.offsetHeight + 'px';
-      document.body.appendChild(tempContainer);
+      // Store original profile image background
+      const originalBackground = previewPhoto.style.backgroundImage;
       
-      // If we have high quality profile image, update it in the temp container
+      // Temporarily set high-quality image if available
       if (highQualityProfileImage) {
-        const tempProfilePhoto = tempContainer.querySelector('.preview-photo');
-        tempProfilePhoto.style.backgroundImage = `url(${highQualityProfileImage})`;
+        previewPhoto.style.backgroundImage = `url(${highQualityProfileImage})`;
       }
       
       const options = {
@@ -801,8 +794,8 @@
         logging: false,
         useCORS: true,
         allowTaint: true,
-        width: tempContainer.offsetWidth,
-        height: tempContainer.offsetHeight,
+        width: previewContainer.offsetWidth,
+        height: previewContainer.offsetHeight,
         windowWidth: document.documentElement.offsetWidth,
         windowHeight: document.documentElement.offsetHeight,
         imageTimeout: 15000,
@@ -811,9 +804,9 @@
         foreignObjectRendering: true
       };
       
-      html2canvas(tempContainer, options).then(canvas => {
-        // Remove temporary container
-        document.body.removeChild(tempContainer);
+      html2canvas(previewContainer, options).then(canvas => {
+        // Restore original background
+        previewPhoto.style.backgroundImage = originalBackground;
         
         // Create final high-quality canvas
         const finalCanvas = document.createElement('canvas');
@@ -832,10 +825,8 @@
         
       }).catch(error => {
         console.error('Error generating image:', error);
-        // Remove temporary container if it still exists
-        if (document.body.contains(tempContainer)) {
-          document.body.removeChild(tempContainer);
-        }
+        // Restore original background even if there's an error
+        previewPhoto.style.backgroundImage = originalBackground;
         alert('There was an error generating your image. Please try again.');
       });
     }
