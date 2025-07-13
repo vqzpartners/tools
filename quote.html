@@ -492,7 +492,7 @@
     let bgColor = '#000000';
     let textColor = '#ffffff';
     
-    // Load saved data from localStorage
+    // Load saved data
     window.addEventListener('DOMContentLoaded', () => {
       const savedName = localStorage.getItem('quoteName');
       const savedUsername = localStorage.getItem('quoteUsername');
@@ -714,12 +714,10 @@
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
-          // Increased resolution for even better quality
           const size = 1200;
           canvas.width = size;
           canvas.height = size;
           
-          // Enable high quality image smoothing
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           
@@ -736,10 +734,8 @@
           
           ctx.drawImage(img, srcX, srcY, srcWidth, srcHeight, 0, 0, size, size);
           
-          // Store as PNG for maximum quality
           const highQualityDataUrl = canvas.toDataURL('image/png', 1.0);
           
-          // Store the high quality version globally
           highQualityProfileImage = highQualityDataUrl;
           
           profilePreview.style.backgroundImage = `url(${highQualityDataUrl})`;
@@ -773,112 +769,75 @@
     function downloadImage() {
       const isLandscape = previewContainer.classList.contains('wide');
       
-      // Even higher resolution for final output
       let width, height;
       if (isLandscape) {
-        width = 2400;  // Increased from 1920
-        height = 1350; // Increased from 1080
+        width = 2400;
+        height = 1350;
       } else {
-        width = 1350;  // Increased from 1080
-        height = 1687; // Increased from 1350
+        width = 1350;
+        height = 1687;
       }
       
       const scaleFactor = width / previewContainer.offsetWidth;
       
-      // Wait for the image to load before rendering
-      const renderImage = () => {
-        const options = {
-          scale: scaleFactor,
-          backgroundColor: bgColor,
-          logging: false,
-          useCORS: true,
-          allowTaint: true,
-          width: previewContainer.offsetWidth,
-          height: previewContainer.offsetHeight,
-          windowWidth: document.documentElement.offsetWidth,
-          windowHeight: document.documentElement.offsetHeight,
-          imageTimeout: 15000, // Increased timeout
-          pixelRatio: 4, // Higher pixel ratio for better quality
-          removeContainer: true,
-          foreignObjectRendering: true,
-          ignoreElements: function(element) {
-            // Don't ignore any elements to ensure profile image is captured
-            return false;
-          }
-        };
-        
-        html2canvas(previewContainer, options).then(canvas => {
-          // Create an even higher quality final canvas
-          const finalCanvas = document.createElement('canvas');
-          const ctx = finalCanvas.getContext('2d');
-          finalCanvas.width = width;
-          finalCanvas.height = height;
-          
-          // Apply the best quality settings
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          
-          // Scale the canvas to the desired resolution
-          ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
-          
-          // If we have a profile image, redraw it at higher quality
-          if (highQualityProfileImage) {
-            const profileImg = new Image();
-            profileImg.onload = function() {
-              // Calculate the profile image position and size in the final canvas
-              const profileArea = previewContainer.querySelector('.profile-area');
-              const profilePhoto = previewContainer.querySelector('.preview-photo');
-              const containerRect = previewContainer.getBoundingClientRect();
-              const profileRect = profilePhoto.getBoundingClientRect();
-              
-              // Calculate relative position and size
-              const relativeX = (profileRect.left - containerRect.left) / containerRect.width;
-              const relativeY = (profileRect.top - containerRect.top) / containerRect.height;
-              const relativeWidth = profileRect.width / containerRect.width;
-              const relativeHeight = profileRect.height / containerRect.height;
-              
-              // Calculate final position and size
-              const finalX = relativeX * width;
-              const finalY = relativeY * height;
-              const finalSize = relativeWidth * width;
-              
-              // Save the current context state
-              ctx.save();
-              
-              // Create a circular clipping path
-              ctx.beginPath();
-              ctx.arc(finalX + finalSize/2, finalY + finalSize/2, finalSize/2, 0, 2 * Math.PI);
-              ctx.clip();
-              
-              // Draw the high-quality profile image
-              ctx.drawImage(profileImg, finalX, finalY, finalSize, finalSize);
-              
-              // Restore the context
-              ctx.restore();
-              
-              // Export the final image
-              exportFinalImage(finalCanvas);
-            };
-            profileImg.src = highQualityProfileImage;
-          } else {
-            // No profile image, export directly
-            exportFinalImage(finalCanvas);
-          }
-        }).catch(error => {
-          console.error('Error generating image:', error);
-          alert('There was an error generating your image. Please try again.');
-        });
+      // Create a temporary container with higher quality profile image
+      const tempContainer = previewContainer.cloneNode(true);
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = previewContainer.offsetWidth + 'px';
+      tempContainer.style.height = previewContainer.offsetHeight + 'px';
+      document.body.appendChild(tempContainer);
+      
+      // If we have high quality profile image, update it in the temp container
+      if (highQualityProfileImage) {
+        const tempProfilePhoto = tempContainer.querySelector('.preview-photo');
+        tempProfilePhoto.style.backgroundImage = `url(${highQualityProfileImage})`;
+      }
+      
+      const options = {
+        scale: scaleFactor,
+        backgroundColor: bgColor,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        width: tempContainer.offsetWidth,
+        height: tempContainer.offsetHeight,
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight,
+        imageTimeout: 15000,
+        pixelRatio: 4,
+        removeContainer: true,
+        foreignObjectRendering: true
       };
       
-      // If we have a profile image, ensure it's loaded before rendering
-      if (highQualityProfileImage) {
-        const img = new Image();
-        img.onload = renderImage;
-        img.onerror = renderImage; // Proceed even if image fails to load
-        img.src = highQualityProfileImage;
-      } else {
-        renderImage();
-      }
+      html2canvas(tempContainer, options).then(canvas => {
+        // Remove temporary container
+        document.body.removeChild(tempContainer);
+        
+        // Create final high-quality canvas
+        const finalCanvas = document.createElement('canvas');
+        const ctx = finalCanvas.getContext('2d');
+        finalCanvas.width = width;
+        finalCanvas.height = height;
+        
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // Draw the rendered canvas to final canvas
+        ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
+        
+        // Export the final image
+        exportFinalImage(finalCanvas);
+        
+      }).catch(error => {
+        console.error('Error generating image:', error);
+        // Remove temporary container if it still exists
+        if (document.body.contains(tempContainer)) {
+          document.body.removeChild(tempContainer);
+        }
+        alert('There was an error generating your image. Please try again.');
+      });
     }
     
     function exportFinalImage(canvas) {
