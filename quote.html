@@ -169,7 +169,7 @@
     .verified-badge {
       width: 18px;
       height: 18px;
-      fill: #1DA1F2; /* Twitter blue color */
+      fill: #1DA1F2;
     }
     
     .preview-username {
@@ -185,6 +185,11 @@
       background-size: cover;
       background-position: center;
       border: 2px solid #333;
+      /* Enhanced quality settings for better rendering */
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: auto;
     }
     
     .quote-text {
@@ -309,7 +314,6 @@
       text-align: center;
     }
     
-    /* Color picker styles */
     .color-picker-container {
       display: flex;
       align-items: center;
@@ -324,7 +328,20 @@
       cursor: pointer;
     }
     
-    /* Mobile responsive styles */
+    /* High resolution rendering class */
+    .rendering {
+      transform: scale(1);
+      transform-origin: top left;
+    }
+    
+    /* Ensure high quality image rendering */
+    .preview-photo.high-quality {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: auto;
+    }
+    
     @media (max-width: 768px) {
       .main-content {
         flex-direction: column;
@@ -422,7 +439,7 @@
         <div class="preview-container" id="previewContainer">
           <div class="content-wrapper">
             <div class="profile-area">
-              <div class="preview-photo" id="previewPhoto"></div>
+              <div class="preview-photo high-quality" id="previewPhoto"></div>
               <div class="profile-info">
                 <div class="preview-name">
                   <span id="previewName">Your Name</span>
@@ -472,10 +489,9 @@
     const textColorPreview = document.getElementById('textColorPreview');
     const textColorValue = document.getElementById('textColorValue');
     
-    // Default font size
+    // Global variables for high-quality image data
+    let highQualityProfileImage = null;
     let currentFontSize = 22;
-    
-    // Default colors
     let bgColor = '#000000';
     let textColor = '#ffffff';
     
@@ -497,19 +513,17 @@
       if (savedVerified) verifiedCheckbox.checked = true;
       
       if (savedPhotoData) {
+        highQualityProfileImage = savedPhotoData;
         profilePreview.style.backgroundImage = `url(${savedPhotoData})`;
         previewPhoto.style.backgroundImage = `url(${savedPhotoData})`;
       }
       
-      // Set font size
       currentFontSize = parseInt(savedFontSize);
       fontSizeValue.textContent = currentFontSize;
       previewQuote.style.fontSize = `${currentFontSize}px`;
       
-      // Set aspect ratio
       setAspectRatio(savedAspectRatio);
       
-      // Set colors
       bgColor = savedBgColor;
       textColor = savedTextColor;
       updateColorPickers();
@@ -526,7 +540,6 @@
       photoInput.click();
     });
     
-    // Font size controls
     increaseFontBtn.addEventListener('click', () => {
       if (currentFontSize < 40) {
         currentFontSize += 2;
@@ -541,10 +554,8 @@
       }
     });
     
-    // Clear data button
     clearDataBtn.addEventListener('click', clearAllData);
     
-    // Color picker functionality
     bgColorPreview.addEventListener('click', () => {
       bgColorPicker.click();
     });
@@ -572,19 +583,15 @@
     }
     
     function updateColorPickers() {
-      // Update color picker inputs
       bgColorPicker.value = bgColor;
       textColorPicker.value = textColor;
       
-      // Update color previews
       bgColorPreview.style.backgroundColor = bgColor;
       textColorPreview.style.backgroundColor = textColor;
       
-      // Update color value text
       bgColorValue.textContent = bgColor;
       textColorValue.textContent = textColor;
       
-      // Update preview container
       previewContainer.style.backgroundColor = bgColor;
       previewQuote.style.color = textColor;
       previewName.style.color = textColor;
@@ -597,9 +604,7 @@
       updateColorPickers();
     }
     
-    // Helper function to adjust color brightness for username
     function adjustBrightness(hex, percent) {
-      // Convert hex to RGB
       hex = hex.replace(/^\s*#|\s*$/g, '');
       if(hex.length == 3) {
         hex = hex.replace(/(.)/g, '$1$1');
@@ -609,12 +614,10 @@
       let g = parseInt(hex.substring(2, 4), 16);
       let b = parseInt(hex.substring(4, 6), 16);
       
-      // Adjust brightness
       r = Math.max(0, Math.min(255, r + percent));
       g = Math.max(0, Math.min(255, g + percent));
       b = Math.max(0, Math.min(255, b + percent));
       
-      // Convert back to hex
       return "#" + 
         ((1 << 24) + (r << 16) + (g << 8) + b)
           .toString(16).slice(1);
@@ -622,7 +625,6 @@
     
     function clearAllData() {
       if (confirm("Are you sure you want to clear all data? This can't be undone.")) {
-        // Clear localStorage
         localStorage.removeItem('quoteName');
         localStorage.removeItem('quoteUsername');
         localStorage.removeItem('quotePhotoData');
@@ -633,35 +635,30 @@
         localStorage.removeItem('quoteBgColor');
         localStorage.removeItem('quoteTextColor');
         
-        // Reset form fields
         nameInput.value = '';
         usernameInput.value = '';
         quoteInput.value = '';
         verifiedCheckbox.checked = false;
         profilePreview.style.backgroundImage = '';
         previewPhoto.style.backgroundImage = '';
+        highQualityProfileImage = null;
         
-        // Reset to default values
         currentFontSize = 22;
         fontSizeValue.textContent = currentFontSize;
         previewQuote.style.fontSize = `${currentFontSize}px`;
         
-        // Reset colors
         bgColor = '#000000';
         textColor = '#ffffff';
         updateColorPickers();
         
-        // Reset aspect ratio
         setAspectRatio('portrait');
         
-        // Update preview
         updatePreview();
         
         alert("All data has been cleared.");
       }
     }
     
-    // Real-time preview updates for all inputs
     photoInput.addEventListener('change', handlePhotoUpload);
     nameInput.addEventListener('input', updatePreview);
     usernameInput.addEventListener('input', updatePreview);
@@ -669,7 +666,6 @@
     verifiedCheckbox.addEventListener('change', updatePreview);
     downloadBtn.addEventListener('click', downloadImage);
     
-    // Aspect ratio selection
     aspectRatioOptions.forEach(option => {
       option.addEventListener('click', () => {
         aspectRatioOptions.forEach(opt => opt.classList.remove('active'));
@@ -683,7 +679,6 @@
       if (ratio === 'landscape') {
         previewContainer.classList.add('wide');
         
-        // Select the landscape option in UI
         aspectRatioOptions.forEach(opt => {
           if (opt.getAttribute('data-ratio') === 'landscape') {
             opt.classList.add('active');
@@ -694,7 +689,6 @@
       } else {
         previewContainer.classList.remove('wide');
         
-        // Select the portrait option in UI
         aspectRatioOptions.forEach(opt => {
           if (opt.getAttribute('data-ratio') === 'portrait') {
             opt.classList.add('active');
@@ -705,12 +699,10 @@
       }
     }
     
-    // Enhanced photo upload function to maintain quality
     function handlePhotoUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
       
-      // Check if file is an image
       if (!file.type.match('image.*')) {
         alert('Please select an image file');
         return;
@@ -720,47 +712,42 @@
       reader.onload = function(event) {
         const photoDataUrl = event.target.result;
         
-        // Create a new Image to get dimensions
         const img = new Image();
         img.onload = function() {
-          // Use offscreen canvas for better quality processing
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
-          // Set high resolution for the profile image
-          const size = 800; // Higher resolution for better quality
+          // Increased resolution for even better quality
+          const size = 1200;
           canvas.width = size;
           canvas.height = size;
           
-          // Apply high quality settings
+          // Enable high quality image smoothing
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           
-          // Calculate cropping to make image square while preserving aspect ratio
           const aspectRatio = img.width / img.height;
           let srcX = 0, srcY = 0, srcWidth = img.width, srcHeight = img.height;
           
           if (aspectRatio > 1) {
-            // Landscape image: crop sides
             srcWidth = img.height;
             srcX = (img.width - srcWidth) / 2;
           } else if (aspectRatio < 1) {
-            // Portrait image: crop top/bottom
             srcHeight = img.width;
             srcY = (img.height - srcHeight) / 2;
           }
           
-          // Draw the image with optimal quality
           ctx.drawImage(img, srcX, srcY, srcWidth, srcHeight, 0, 0, size, size);
           
-          // Get maximum quality data URL
+          // Store as PNG for maximum quality
           const highQualityDataUrl = canvas.toDataURL('image/png', 1.0);
           
-          // Set image preview
+          // Store the high quality version globally
+          highQualityProfileImage = highQualityDataUrl;
+          
           profilePreview.style.backgroundImage = `url(${highQualityDataUrl})`;
           previewPhoto.style.backgroundImage = `url(${highQualityDataUrl})`;
           
-          // Save to localStorage
           localStorage.setItem('quotePhotoData', highQualityDataUrl);
         };
         img.src = photoDataUrl;
@@ -768,7 +755,6 @@
       reader.readAsDataURL(file);
     }
     
-    // Update preview with user inputs
     function updatePreview() {
       const name = nameInput.value || 'Your Name';
       const username = usernameInput.value || '@username';
@@ -781,87 +767,150 @@
       
       verifiedBadge.style.display = verified ? 'inline-block' : 'none';
       
-      // Save to localStorage
       localStorage.setItem('quoteName', name);
       localStorage.setItem('quoteUsername', username);
       localStorage.setItem('quoteText', quote);
       localStorage.setItem('quoteVerified', verified);
     }
     
-    // Improved image download function
     function downloadImage() {
       const isLandscape = previewContainer.classList.contains('wide');
       
-      // Set dimensions based on aspect ratio (higher resolution)
+      // Even higher resolution for final output
       let width, height;
       if (isLandscape) {
-        width = 1920;
-        height = 1080;
+        width = 2400;  // Increased from 1920
+        height = 1350; // Increased from 1080
       } else {
-        width = 1080;
-        height = 1350;
+        width = 1350;  // Increased from 1080
+        height = 1687; // Increased from 1350
       }
       
-      // Calculate proper scale factor for high resolution
       const scaleFactor = width / previewContainer.offsetWidth;
       
-      // Temporarily add a class for rendering
-      previewContainer.classList.add('rendering');
+      // Create a temporary high-resolution profile image element
+      const tempProfileImg = document.createElement('img');
+      if (highQualityProfileImage) {
+        tempProfileImg.src = highQualityProfileImage;
+        tempProfileImg.style.width = '48px';
+        tempProfileImg.style.height = '48px';
+        tempProfileImg.style.borderRadius = '50%';
+        tempProfileImg.style.objectFit = 'cover';
+        tempProfileImg.style.imageRendering = 'high-quality';
+        tempProfileImg.style.imageRendering = '-webkit-optimize-contrast';
+      }
       
-      // Setup options for better quality
-      const options = {
-        scale: scaleFactor,
-        backgroundColor: bgColor,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        width: previewContainer.offsetWidth,
-        height: previewContainer.offsetHeight,
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight,
-        imageTimeout: 0, // No timeout
-        pixelRatio: 3 // Higher pixel ratio for better quality
+      // Wait for the image to load before rendering
+      const renderImage = () => {
+        const options = {
+          scale: scaleFactor,
+          backgroundColor: bgColor,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          width: previewContainer.offsetWidth,
+          height: previewContainer.offsetHeight,
+          windowWidth: document.documentElement.offsetWidth,
+          windowHeight: document.documentElement.offsetHeight,
+          imageTimeout: 15000, // Increased timeout
+          pixelRatio: 4, // Higher pixel ratio for better quality
+          removeContainer: true,
+          foreignObjectRendering: true,
+          ignoreElements: function(element) {
+            // Don't ignore any elements to ensure profile image is captured
+            return false;
+          }
+        };
+        
+        html2canvas(previewContainer, options).then(canvas => {
+          // Create an even higher quality final canvas
+          const finalCanvas = document.createElement('canvas');
+          const ctx = finalCanvas.getContext('2d');
+          finalCanvas.width = width;
+          finalCanvas.height = height;
+          
+          // Apply the best quality settings
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          
+          // Scale the canvas to the desired resolution
+          ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
+          
+          // If we have a profile image, redraw it at higher quality
+          if (highQualityProfileImage) {
+            const profileImg = new Image();
+            profileImg.onload = function() {
+              // Calculate the profile image position and size in the final canvas
+              const profileArea = previewContainer.querySelector('.profile-area');
+              const profilePhoto = previewContainer.querySelector('.preview-photo');
+              const containerRect = previewContainer.getBoundingClientRect();
+              const profileRect = profilePhoto.getBoundingClientRect();
+              
+              // Calculate relative position and size
+              const relativeX = (profileRect.left - containerRect.left) / containerRect.width;
+              const relativeY = (profileRect.top - containerRect.top) / containerRect.height;
+              const relativeWidth = profileRect.width / containerRect.width;
+              const relativeHeight = profileRect.height / containerRect.height;
+              
+              // Calculate final position and size
+              const finalX = relativeX * width;
+              const finalY = relativeY * height;
+              const finalSize = relativeWidth * width;
+              
+              // Save the current context state
+              ctx.save();
+              
+              // Create a circular clipping path
+              ctx.beginPath();
+              ctx.arc(finalX + finalSize/2, finalY + finalSize/2, finalSize/2, 0, 2 * Math.PI);
+              ctx.clip();
+              
+              // Draw the high-quality profile image
+              ctx.drawImage(profileImg, finalX, finalY, finalSize, finalSize);
+              
+              // Restore the context
+              ctx.restore();
+              
+              // Export the final image
+              exportFinalImage(finalCanvas);
+            };
+            profileImg.src = highQualityProfileImage;
+          } else {
+            // No profile image, export directly
+            exportFinalImage(finalCanvas);
+          }
+        }).catch(error => {
+          console.error('Error generating image:', error);
+          alert('There was an error generating your image. Please try again.');
+        });
       };
       
-      html2canvas(previewContainer, options).then(canvas => {
-        // Remove rendering class
-        previewContainer.classList.remove('rendering');
-        
-        // Further enhance quality with a second canvas pass
-        const finalCanvas = document.createElement('canvas');
-        const ctx = finalCanvas.getContext('2d');
-        finalCanvas.width = canvas.width;
-        finalCanvas.height = canvas.height;
-        
-        // Apply image smoothing for higher quality
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        
-        // Draw with anti-aliasing
-        ctx.drawImage(canvas, 0, 0);
-        
-        // Convert to max quality JPEG
-        const imgData = finalCanvas.toDataURL('image/jpeg', 1.0);
-        
-        // Create download link
-        const link = document.createElement('a');
-        link.href = imgData;
-        
-        // Set filename with timestamp
-        const timestamp = new Date().toISOString().replace(/[-:.]/g, "").substring(0, 14);
-        const username = usernameInput.value || 'quote';
-        link.download = `${username.replace('@', '')}-${timestamp}.jpg`;
-        
-// Trigger download
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }).catch(error => {
-        console.error('Error generating image:', error);
-        alert('There was an error generating your image. Please try again.');
-        previewContainer.classList.remove('rendering');
-      });
+      // If we have a profile image, ensure it's loaded before rendering
+      if (highQualityProfileImage) {
+        const img = new Image();
+        img.onload = renderImage;
+        img.onerror = renderImage; // Proceed even if image fails to load
+        img.src = highQualityProfileImage;
+      } else {
+        renderImage();
+      }
     }
-  </script>
-</body>
-</html>
+    
+    function exportFinalImage(canvas) {
+      // Convert to highest quality JPEG
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = imgData;
+      
+      // Set filename with timestamp
+      const timestamp = new Date().toISOString().replace(/[-:.]/g, "").substring(0, 14);
+      const username = usernameInput.value || 'quote';
+      link.download = `${username.replace('@', '')}-quote-${timestamp}.jpg`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
