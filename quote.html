@@ -169,7 +169,7 @@
     .verified-badge {
       width: 18px;
       height: 18px;
-      fill: #1DA1F2;
+      display: none;
     }
     
     .preview-username {
@@ -182,13 +182,16 @@
       height: 48px;
       border-radius: 50%;
       background-color: #333;
-      background-size: cover;
-      background-position: center;
       border: 2px solid #333;
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-      image-rendering: pixelated;
-      image-rendering: auto;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .preview-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
     }
     
     .quote-text {
@@ -327,18 +330,6 @@
       cursor: pointer;
     }
     
-    .rendering {
-      transform: scale(1);
-      transform-origin: top left;
-    }
-    
-    .preview-photo.high-quality {
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: optimize-contrast;
-      image-rendering: crisp-edges;
-      image-rendering: auto;
-    }
-    
     @media (max-width: 768px) {
       .main-content {
         flex-direction: column;
@@ -436,13 +427,13 @@
         <div class="preview-container" id="previewContainer">
           <div class="content-wrapper">
             <div class="profile-area">
-              <div class="preview-photo high-quality" id="previewPhoto"></div>
+              <div class="preview-photo" id="previewPhoto">
+                <img id="profileImage" src="" alt="" style="display: none;">
+              </div>
               <div class="profile-info">
                 <div class="preview-name">
                   <span id="previewName">Your Name</span>
-                  <svg class="verified-badge" id="verifiedBadge" viewBox="0 0 24 24" style="display: none;">
-                    <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/>
-                  </svg>
+                  <img class="verified-badge" id="verifiedBadge" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzFEQTFGMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIyLjUgMTIuNWMwLTEuNTgtLjg3NS0yLjk1LTIuMTQ4LTMuNi4xNTQtLjQzNS4yMzgtLjkwNS4yMzgtMS40IDAtMi4yMS0xLjcxLTMuOTk4LTMuODE4LTMuOTk4LS40NyAwLS45Mi4wODQtMS4zMzYuMjVDMTQuODE4IDIuNDE1IDEzLjUxIDEuNSAxMiAxLjVzLTIuODE2LjkxNy0zLjQzNyAyLjI1Yy0uNDE1LS4xNjUtLjg2Ni0uMjUtMS4zMzYtLjI1LTIuMTEgMC0zLjgxOCAxLjc5LTMuODE4IDQgMCAuNDk0LjA4My45NjQuMjM3IDEuNC0xLjI3Mi42NS0yLjE0NyAyLjAxOC0yLjE0NyAzLjYgMCAxLjQ5NS43ODIgMi43OTggMS45NDIgMy40ODYtLjAyLjE3LS4wMzIuMzQtLjAzMi41MTQgMCAyLjIxIDEuNzA4IDQgMy44MTggNCAwLjQ3IDAgLjkyLS4wODYgMS4zMzUtLjI1LjYyIDEuMzM0IDEuOTI2IDIuMjUgMy40MzcgMi4yNSAxLjUxMiAwIDIuODE4LS45MTYgMy40MzctMi4yNS40MTUuMTYzLjg2NS4yNDggMS4zMzYuMjQ4IDIuMTEgMCAzLjgxOC0xLjc5IDMuODE4LTQgMC0uMTc0LS4wMTItLjM0NC0uMDMzLS41MTMgMS4xNTgtLjY4NyAxLjk0My0xLjk5IDEuOTQzLTMuNDg0em0tNi42MTYtMy4zMzRsLTQuMzM0IDYuNWMtLjE0NS4yMTctLjM4Mi4zMzQtLjYyNS4zMzQtLjE0MyAwLS4yODgtLjA0LS40MTYtLjEyNmwtLjExNS0uMDk0LTIuNDE1LTIuNDE1Yy0uMjkzLS4yOTMtLjI5My0uNzY4IDAtMS4wNnMuNzY4LS4yOTQgMS4wNiAwbDEuNzcgMS43NjcgMy44MjUtNS43NGMuMjMtLjM0NS42OTYtLjQzNiAxLjA0LS4yMDcuMzQ2LjIzLjQ0LjY5Ni4yMSAxLjA0eiIvPgo8L3N2Zz4K" style="display: none;">
                 </div>
                 <div class="preview-username" id="previewUsername">@username</div>
               </div>
@@ -470,6 +461,7 @@
     const downloadBtn = document.getElementById('downloadBtn');
     const clearDataBtn = document.getElementById('clearDataBtn');
     const previewPhoto = document.getElementById('previewPhoto');
+    const profileImage = document.getElementById('profileImage');
     const previewName = document.getElementById('previewName');
     const previewUsername = document.getElementById('previewUsername');
     const previewQuote = document.getElementById('previewQuote');
@@ -486,7 +478,7 @@
     const textColorPreview = document.getElementById('textColorPreview');
     const textColorValue = document.getElementById('textColorValue');
     
-    // Global variables for high-quality image data
+    // Global variables
     let highQualityProfileImage = null;
     let currentFontSize = 22;
     let bgColor = '#000000';
@@ -512,7 +504,8 @@
       if (savedPhotoData) {
         highQualityProfileImage = savedPhotoData;
         profilePreview.style.backgroundImage = `url(${savedPhotoData})`;
-        previewPhoto.style.backgroundImage = `url(${savedPhotoData})`;
+        profileImage.src = savedPhotoData;
+        profileImage.style.display = 'block';
       }
       
       currentFontSize = parseInt(savedFontSize);
@@ -637,7 +630,8 @@
         quoteInput.value = '';
         verifiedCheckbox.checked = false;
         profilePreview.style.backgroundImage = '';
-        previewPhoto.style.backgroundImage = '';
+        profileImage.src = '';
+        profileImage.style.display = 'none';
         highQualityProfileImage = null;
         
         currentFontSize = 22;
@@ -739,7 +733,8 @@
           highQualityProfileImage = highQualityDataUrl;
           
           profilePreview.style.backgroundImage = `url(${highQualityDataUrl})`;
-          previewPhoto.style.backgroundImage = `url(${highQualityDataUrl})`;
+          profileImage.src = highQualityDataUrl;
+          profileImage.style.display = 'block';
           
           localStorage.setItem('quotePhotoData', highQualityDataUrl);
         };
@@ -771,67 +766,155 @@
       
       let width, height;
       if (isLandscape) {
-        width = 2400;
-        height = 1350;
+        width = 3200;
+        height = 1800;
       } else {
-        width = 1350;
-        height = 1687;
+        width = 1800;
+        height = 2250;
       }
       
+      // Create a canvas and draw everything manually for maximum quality
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Enable high-quality rendering
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.textRenderingOptimization = 'optimizeQuality';
+      
+      // Fill background
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Calculate scale factor for text and elements
       const scaleFactor = width / previewContainer.offsetWidth;
+      const contentPadding = 40 * scaleFactor;
+      const profileSize = 48 * scaleFactor;
+      const profileGap = 12 * scaleFactor;
+      const nameGap = 4 * scaleFactor;
+      const sectionGap = 24 * scaleFactor;
       
-      // Store original profile image background
-      const originalBackground = previewPhoto.style.backgroundImage;
+      // Calculate content area
+      const contentWidth = width * 0.85;
+      const contentX = (width - contentWidth) / 2;
+      let currentY = contentPadding;
       
-      // Temporarily set high-quality image if available
+      // Center content vertically
+      const totalContentHeight = profileSize + sectionGap + (currentFontSize * scaleFactor * 3); // Approximate
+      currentY = (height - totalContentHeight) / 2;
+      
+      // Draw profile image if available
       if (highQualityProfileImage) {
-        previewPhoto.style.backgroundImage = `url(${highQualityProfileImage})`;
+        const profileImg = new Image();
+        profileImg.onload = function() {
+          // Draw circular profile image
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(contentX + profileSize/2, currentY + profileSize/2, profileSize/2, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(profileImg, contentX, currentY, profileSize, profileSize);
+          ctx.restore();
+          
+          // Continue with text rendering after image loads
+          drawTextContent();
+        };
+        profileImg.src = highQualityProfileImage;
+      } else {
+        // Draw placeholder circle
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(contentX + profileSize/2, currentY + profileSize/2, profileSize/2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        drawTextContent();
       }
       
-      const options = {
-        scale: scaleFactor,
-        backgroundColor: bgColor,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        width: previewContainer.offsetWidth,
-        height: previewContainer.offsetHeight,
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight,
-        imageTimeout: 15000,
-        pixelRatio: 4,
-        removeContainer: true,
-        foreignObjectRendering: true
-      };
+      function drawTextContent() {
+        const textX = contentX + profileSize + profileGap;
+        let textY = currentY;
+        
+        // Draw name
+        const name = nameInput.value || 'Your Name';
+        ctx.fillStyle = textColor;
+        ctx.font = `bold ${18 * scaleFactor}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+        ctx.textBaseline = 'top';
+        const nameWidth = ctx.measureText(name).width;
+        ctx.fillText(name, textX, textY);
+        
+        // Draw verified badge if enabled
+        if (verifiedCheckbox.checked) {
+          const badgeSize = 18 * scaleFactor;
+          const badgeX = textX + nameWidth + nameGap;
+          const badgeY = textY;
+          
+          // Draw blue circle
+          ctx.fillStyle = '#1DA1F2';
+          ctx.beginPath();
+          ctx.arc(badgeX + badgeSize/2, badgeY + badgeSize/2, badgeSize/2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Draw checkmark
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 2 * scaleFactor;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          const checkX = badgeX + badgeSize * 0.3;
+          const checkY = badgeY + badgeSize * 0.5;
+          ctx.moveTo(checkX, checkY);
+          ctx.lineTo(checkX + badgeSize * 0.2, checkY + badgeSize * 0.2);
+          ctx.lineTo(checkX + badgeSize * 0.5, checkY - badgeSize * 0.1);
+          ctx.stroke();
+        }
+        
+        // Draw username
+        textY += 22 * scaleFactor;
+        const username = usernameInput.value || '@username';
+        const displayUsername = username.startsWith('@') ? username : '@' + username;
+        ctx.fillStyle = adjustBrightness(textColor, -30);
+        ctx.font = `${15 * scaleFactor}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+        ctx.fillText(displayUsername, textX, textY);
+        
+        // Draw quote text
+        textY = currentY + profileSize + sectionGap;
+        const quote = quoteInput.value || 'Your quote will appear here. Make it something memorable!';
+        ctx.fillStyle = textColor;
+        ctx.font = `${currentFontSize * scaleFactor}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+        
+        // Handle multi-line text
+        const words = quote.split(' ');
+        const maxWidth = contentWidth - (profileGap * 2);
+        let line = '';
+        const lineHeight = currentFontSize * scaleFactor * 1.3;
+        
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + ' ';
+          const metrics = ctx.measureText(testLine);
+          const testWidth = metrics.width;
+          
+          if (testWidth > maxWidth && n > 0) {
+            ctx.fillText(line, contentX, textY);
+            line = words[n] + ' ';
+            textY += lineHeight;
+          } else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line, contentX, textY);
+        
+        // Export the final canvas
+        exportFinalCanvas(canvas);
+      }
       
-      html2canvas(previewContainer, options).then(canvas => {
-        // Restore original background
-        previewPhoto.style.backgroundImage = originalBackground;
-        
-        // Create final high-quality canvas
-        const finalCanvas = document.createElement('canvas');
-        const ctx = finalCanvas.getContext('2d');
-        finalCanvas.width = width;
-        finalCanvas.height = height;
-        
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        
-        // Draw the rendered canvas to final canvas
-        ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
-        
-        // Export the final image
-        exportFinalImage(finalCanvas);
-        
-      }).catch(error => {
-        console.error('Error generating image:', error);
-        // Restore original background even if there's an error
-        previewPhoto.style.backgroundImage = originalBackground;
-        alert('There was an error generating your image. Please try again.');
-      });
+      // If no profile image, start drawing text immediately
+      if (!highQualityProfileImage) {
+        drawTextContent();
+      }
     }
     
-    function exportFinalImage(canvas) {
+    function exportFinalCanvas(canvas) {
       // Convert to highest quality JPEG
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       
@@ -848,7 +931,3 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
-  </script>
-</body>
-</html>
