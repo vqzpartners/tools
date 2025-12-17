@@ -3,8 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Tools Collection</title>
-    <link rel="icon" href="https://d1yei2z3i6k35z.cloudfront.net/11280846/67afc14948ce0_sovereigns-favicon.png" type="image/x-icon">
+    
+    <!-- Primary Meta Tags -->
+    <title>Web Tools Collection - Secure Off-Cloud Tools</title>
+    <meta name="title" content="Web Tools Collection - Secure Off-Cloud Tools">
+    <meta name="description" content="An open source project thriving to make off-cloud secure tools for your business and personal life. Includes Web Previewers, WhatsApp Link Generators, and more.">
+    <meta name="keywords" content="open source, privacy tools, off-cloud, web tools, whatsapp generator, instagram previewer, secure utilities">
+    <meta name="author" content="Web Tools Collection">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tools.sovereigns.co">
+    <meta property="og:title" content="Web Tools Collection - Secure Off-Cloud Tools">
+    <meta property="og:description" content="An open source project thriving to make off-cloud secure tools for your business and personal life.">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://tools.sovereigns.co">
+    <meta property="twitter:title" content="Web Tools Collection - Secure Off-Cloud Tools">
+    <meta property="twitter:description" content="An open source project thriving to make off-cloud secure tools for your business and personal life.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn.sovereigns.co/favicon.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -13,236 +40,89 @@
             font-family: 'Roboto Mono', monospace;
         }
 
-        html {
-            font-size: 16px;
-        }
-
         body {
             background-color: #000000;
-            color: white;
-            padding: 20px;
+            color: #ffffff;
+            padding: 40px 20px;
             min-height: 100vh;
             line-height: 1.6;
         }
 
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 0 15px;
         }
 
+        /* Header Styles */
         .header {
-            margin-bottom: clamp(1.5rem, 4vw, 2rem);
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid #ffffff;
+            padding-bottom: 1.5rem;
         }
 
         .title {
-            font-size: clamp(1.5rem, 5vw, 24px);
-            margin-bottom: clamp(0.5rem, 2vw, 8px);
-            word-wrap: break-word;
-            max-width: 100%;
-            color: white;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: -1px;
         }
 
         .description {
-            opacity: 0.7;
-            margin-bottom: clamp(0.75rem, 3vw, 1rem);
-            font-size: clamp(0.875rem, 2vw, 1rem);
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 600px;
         }
 
+        /* Grid Styles */
         .tools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-            gap: clamp(0.75rem, 3vw, 1rem);
-            margin-top: clamp(1.5rem, 4vw, 2rem);
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
+        /* Card Styles */
         .tool-card {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: clamp(0.75rem, 3vw, 1rem);
-            border-radius: 15px;
-            background-color: rgba(255, 255, 255, 0.05);
-            transition: transform 0.2s, background-color 0.2s;
-            cursor: pointer;
+            display: block;
+            border: 1px solid #ffffff;
+            padding: 1.5rem;
             text-decoration: none;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            -webkit-tap-highlight-color: transparent;
+            color: #ffffff;
+            transition: all 0.2s ease;
+            background-color: #000000;
         }
 
-        .tool-card:hover, .tool-card:focus {
-            transform: translateY(-2px);
-            background-color: rgba(255, 255, 255, 0.08);
-            text-decoration: none;
-            outline: none;
-        }
-
-        .tool-card:active {
-            transform: translateY(0);
+        .tool-card:hover {
+            background-color: #ffffff;
+            color: #000000;
+            transform: translateY(-4px);
         }
 
         .tool-name {
-            font-size: clamp(1rem, 3vw, 1.1em);
+            font-size: 1.1rem;
+            font-weight: 700;
             margin-bottom: 0.5rem;
-            color: red;
+            text-transform: uppercase;
+        }
+
+        /* When card is hovered, keep title black */
+        .tool-card:hover .tool-name {
+            color: #000000;
         }
 
         .tool-description {
-            opacity: 0.7;
-            font-size: clamp(0.8rem, 2vw, 0.9em);
-            line-height: 1.4;
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
 
+        /* Simple blinking cursor animation */
         .cursor {
             display: inline-block;
-            width: clamp(6px, 1.5vw, 8px);
-            height: clamp(16px, 4vw, 20px);
-            background-color: white;
+            width: 10px;
+            height: 1rem;
+            background-color: #ffffff;
             animation: blink 1s infinite;
             margin-left: 5px;
-            vertical-align: middle;
-        }
-
-        /* Notice Banner Styles */
-        .notice-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            border-top: 1px solid rgba(255, 0, 0, 0.3);
-            color: white;
-            padding: 10px 15px;
-            z-index: 1000;
-            transform: translateY(100%);
-            transition: transform 0.3s ease-out;
-        }
-
-        .notice-banner.active {
-            transform: translateY(0);
-        }
-
-        /* Notice importance styles */
-        .notice-banner.info {
-            border-top-color: rgba(0, 191, 255, 0.5);
-        }
-
-        .notice-banner.warning {
-            border-top-color: rgba(255, 165, 0, 0.5);
-            background-color: rgba(25, 15, 0, 0.9);
-        }
-
-        .notice-banner.update {
-            border-top-color: rgba(0, 255, 127, 0.5);
-            background-color: rgba(0, 25, 15, 0.9);
-        }
-
-        .notice-banner.alert {
-            border-top-color: rgba(255, 0, 0, 0.5);
-            background-color: rgba(25, 0, 0, 0.9);
-        }
-
-        .notice-content {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .notice-text {
-            font-size: 0.9rem;
-            flex-grow: 1;
-            margin-right: 15px;
-        }
-
-        .notice-close {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0 5px;
-        }
-
-        .notice-close:hover {
-            color: white;
-        }
-
-        /* Logs Panel */
-        .logs-panel {
-            position: fixed;
-            bottom: 40px;
-            left: 0;
-            width: 100%;
-            max-height: 300px;
-            background-color: rgba(0, 0, 0, 0.9);
-            border-top: 1px solid rgba(255, 0, 0, 0.3);
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            padding: 10px;
-            overflow-y: auto;
-            z-index: 999;
-            display: none;
-        }
-
-        .logs-panel.active {
-            display: block;
-        }
-
-        .log-section-header {
-            font-weight: bold;
-            color: #fff;
-            margin: 10px 0 5px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .log-entry {
-            margin-bottom: 5px;
-            border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
-            padding-bottom: 5px;
-        }
-
-        .log-timestamp {
-            color: #888;
-            margin-right: 10px;
-        }
-
-        /* Log type colors */
-        .log-info .log-message {
-            color: #00ff00;
-        }
-
-        .log-warning .log-message {
-            color: #ffa500;
-        }
-
-        .log-update .log-message {
-            color: #00ff7f;
-        }
-
-        .log-alert .log-message {
-            color: #ff4500;
-        }
-
-        .toggle-logs {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            cursor: pointer;
-            font-size: 0.8rem;
-            text-decoration: underline;
-            padding: 0;
-        }
-
-        .toggle-logs:hover {
-            color: white;
         }
 
         @keyframes blink {
@@ -250,59 +130,10 @@
             50% { opacity: 0; }
         }
 
-        /* Media Queries */
+        /* Mobile adjustments */
         @media (max-width: 600px) {
-            body {
-                padding: 15px 10px;
-            }
-
-            .container {
-                padding: 0 10px;
-            }
-
-            .tools-grid {
-                gap: 0.75rem;
-            }
-
-            .tool-card {
-                padding: 0.875rem;
-            }
-
-            .notice-text {
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (max-width: 350px) {
-            html {
-                font-size: 14px;
-            }
-
-            .tool-card {
-                padding: 0.75rem;
-            }
-        }
-
-        /* Touch Device Optimizations */
-        @media (hover: none) {
-            .tool-card:hover {
-                transform: none;
-            }
-        }
-
-        /* Reduced Motion Preferences */
-        @media (prefers-reduced-motion: reduce) {
-            .cursor {
-                animation: none;
-            }
-
-            .tool-card {
-                transition: none;
-            }
-
-            .notice-banner {
-                transition: none;
-            }
+            .title { font-size: 1.5rem; }
+            .tools-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -310,77 +141,48 @@
     <div class="container">
         <header class="header">
             <h1 class="title">Web Tools Collection<span class="cursor"></span></h1>
-            <p class="description">a collection of useful web tools for everyday tasks</p>
+            <p class="description">
+                This is an open source project thriving to make off-cloud secure tools for your business and personal life.
+            </p>
         </header>
+
         <div class="tools-grid">
-            <a href="/web" class="tool-card">
-                <h2 class="tool-name">advanced web previewer</h2>
-                <p class="tool-description">take better branding decisions before making any move in your business</p>
-            </a>
-            <a href="/whatsapp" class="tool-card">
-                <h2 class="tool-name">whatsApp link generator</h2>
-                <p class="tool-description">create custom whatsApp message links with country codes and pre-filled messages</p>
-            </a>
-            <a href="/instagram" class="tool-card">
-                <h2 class="tool-name">instagram profile previwer</h2>
-                <p class="tool-description">take better branding decisions before updating your instagram profile</p>
-            </a>
             <a href="/x" class="tool-card">
-                <h2 class="tool-name">x profile previwer</h2>
-                <p class="tool-description">take better branding decisions before updating your x profile</p>
+                <h2 class="tool-name">X Profile Previewer</h2>
+                <p class="tool-description">Take better branding decisions before updating your X profile.</p>
             </a>
-            <a href="/quote" class="tool-card">
-                <h2 class="tool-name">quote image generator</h2>
-                <p class="tool-description">Distrubute your X posts easily with our Quote Generator</p>
+
+            <a href="/instagram" class="tool-card">
+                <h2 class="tool-name">Instagram Profile Previewer</h2>
+                <p class="tool-description">Take better branding decisions before updating your Instagram profile.</p>
             </a>
-            <!-- Template for future tools -->
-            <!--
-            <a href="tool-url.html" class="tool-card">
-                <h2 class="tool-name">Tool Name</h2>
-                <p class="tool-description">Tool description goes here</p>
+
+            <a href="/whatsapp" class="tool-card">
+                <h2 class="tool-name">Expenses Tracker</h2>
+                <p class="tool-description">Get a clear view of your finances securely.</p>
             </a>
-            -->
+            
+            <a href="/post" class="tool-card">
+                <h2 class="tool-name">Simple IG post</h2>
+                <p class="tool-description">Create fast B&W text based post for instagram</p>
+            </a>
+
+            <a href="/post" class="tool-card">
+                <h2 class="tool-name">Secure Notes</h2>
+                <p class="tool-description">Create unlimited Notes securely, offline.</p>
+            </a>
+
+            <a href="/whatsapp" class="tool-card">
+                <h2 class="tool-name">WhatsApp Link Generator</h2>
+                <p class="tool-description">Create custom WhatsApp message links with country codes and pre-filled messages.</p>
+            </a>
+
+            <a href="/web" class="tool-card">
+                <h2 class="tool-name">Advanced Web Previewer</h2>
+                <p class="tool-description">Take better branding decisions before making any move in your business.</p>
+            </a>
+            
         </div>
     </div>
-
-    <!-- Notice Banner -->
-    <div id="noticeBanner" class="notice-banner">
-        <div class="notice-content">
-            <div id="noticeText" class="notice-text">Loading...</div>
-            <button id="toggleLogs" class="toggle-logs">Show Logs</button>
-            <button id="closeNotice" class="notice-close">×</button>
-        </div>
-    </div>
-
-    <!-- Logs Panel -->
-    <div id="logsPanel" class="logs-panel">
-        <div id="logsContainer"></div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="broadcast.js"></script>
-    <script>
-        // Initialize the notice system when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize broadcast system
-            if (typeof Broadcast !== 'undefined') {
-                Broadcast.init();
-            }
-
-            // Close notice button
-            document.getElementById('closeNotice').addEventListener('click', function() {
-                document.getElementById('noticeBanner').classList.remove('active');
-            });
-
-            // Toggle logs panel
-            document.getElementById('toggleLogs').addEventListener('click', function() {
-                const logsPanel = document.getElementById('logsPanel');
-                const isActive = logsPanel.classList.contains('active');
-                
-                logsPanel.classList.toggle('active');
-                this.textContent = isActive ? 'Show Logs' : 'Hide Logs';
-            });
-        });
-    </script>
 </body>
 </html>
