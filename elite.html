@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- SEO Tags solicitados -->
+    <!-- SEO Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
     <link rel="profile" href="https://gmpg.org/xfn/11">
@@ -9,6 +9,10 @@
     <meta name="description" content="EliteClinics es una agencia especializada en la detección y eliminación de los cuellos de botella más comunes que limitan el crecimiento y la rentabilidad de clínicas odontológicas y estéticas."/>
     <meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
     <link rel="canonical" href="https://eliteclinics.lat/"/>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://cdn.eliteclinics.lat/favicon.png">
+
     <meta property="og:locale" content="es_ES"/>
     <meta property="og:type" content="website"/>
     <meta property="og:title" content="EliteClinics: Agencia especializada en posicionamiento local para clínicas"/>
@@ -33,13 +37,13 @@
     <meta name="twitter:label2" content="Tiempo de lectura"/>
     <meta name="twitter:data2" content="1 minuto"/>
 
-    <!-- Google Fonts para replicar la tipografía -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* Variables y Reset */
+        /* Variables */
         :root {
             --primary-blue: #2A68A6;
             --dark-blue: #1E3455;
@@ -54,6 +58,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
         }
 
         body {
@@ -69,11 +74,17 @@
             padding: 0 20px;
         }
 
-        /* Navbar */
+        /* --- Menú Moderno --- */
         header {
-            background-color: var(--white);
-            padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
         }
 
         .nav-container {
@@ -83,28 +94,39 @@
         }
 
         .logo-img {
-            height: 45px;
+            height: 50px;
             object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.05);
         }
 
         .nav-links {
             display: flex;
-            gap: 30px;
+            align-items: center;
         }
 
-        .nav-links a {
+        .btn-contacto {
             text-decoration: none;
-            color: var(--text-dark);
+            background-color: var(--primary-blue);
+            color: var(--white);
             font-weight: 600;
             font-size: 15px;
-            transition: color 0.3s ease;
+            padding: 10px 28px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(42, 104, 166, 0.2);
         }
 
-        .nav-links a:hover {
-            color: var(--primary-blue);
+        .btn-contacto:hover {
+            background-color: var(--dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(42, 104, 166, 0.4);
         }
 
-        /* Hero Section */
+        /* --- Hero Section --- */
         .hero {
             background-color: var(--bg-light);
             padding-top: 60px;
@@ -113,7 +135,7 @@
 
         .hero-container {
             display: flex;
-            align-items: flex-end; /* Alinea al chico abajo */
+            align-items: flex-end;
             justify-content: space-between;
             gap: 40px;
         }
@@ -138,7 +160,6 @@
             margin-bottom: 30px;
         }
 
-        /* Tally form wrapper (Simula el fondo azul si el iframe es transparente) */
         .tally-wrapper {
             background-color: var(--primary-blue);
             border-radius: 12px;
@@ -150,7 +171,7 @@
             flex: 1;
             display: flex;
             justify-content: flex-end;
-            margin-bottom: -5px; /* Quita el margen inferior para que se pegue al fondo */
+            margin-bottom: -5px;
         }
 
         .hero-image img {
@@ -161,7 +182,7 @@
             object-position: bottom;
         }
 
-        /* Confían en el servicio Section */
+        /* --- Confían en el servicio --- */
         .trust-section {
             background-color: var(--primary-blue);
             padding: 50px 0;
@@ -182,15 +203,34 @@
             flex-wrap: wrap;
         }
 
-        .badge {
+        .badge-btn {
             background-color: var(--dark-blue);
+            color: var(--white);
+            border: none;
             padding: 12px 30px;
             border-radius: 30px;
             font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* FAQ Section */
+        .badge-btn:hover {
+            background-color: #152642;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* Icono de enlace para los botones */
+        .badge-btn::before {
+            content: "👁️";
+            font-size: 16px;
+        }
+
+        /* --- FAQ Section --- */
         .faq-section {
             background-color: var(--bg-light);
             padding: 80px 0;
@@ -238,16 +278,11 @@
             background-color: #245b93;
         }
 
-        .faq-icon {
-            font-size: 20px;
-            font-weight: 400;
-        }
-
         .faq-answer {
             background-color: var(--white);
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease;
+            transition: max-height 0.3s ease-out;
         }
 
         .faq-answer p {
@@ -256,12 +291,11 @@
             font-size: 15px;
         }
 
-        /* Active FAQ state */
         .faq-item.active .faq-answer {
-            max-height: 200px; /* Suficiente para el texto */
+            max-height: 200px;
         }
 
-        /* Calendly Section */
+        /* --- Calendly Section --- */
         .calendly-section {
             background-color: var(--primary-blue);
             padding: 80px 0;
@@ -274,7 +308,6 @@
             font-weight: 800;
             text-transform: uppercase;
             margin-bottom: 10px;
-            letter-spacing: 1px;
         }
 
         .calendly-section p {
@@ -290,24 +323,170 @@
             overflow: hidden;
         }
 
-        /* Footer */
+        /* --- Footer & Instagram --- */
         footer {
             background-color: var(--bg-light);
-            padding: 50px 0 30px;
+            padding: 60px 0 30px;
             text-align: center;
         }
 
-        footer img {
-            height: 50px;
+        .footer-logo {
+            height: 60px;
             margin-bottom: 30px;
+        }
+
+        .instagram-box {
+            margin: 0 auto 40px;
+            max-width: 400px;
+        }
+
+        .instagram-text {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .ig-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: var(--white);
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.2);
+        }
+
+        .ig-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(220, 39, 67, 0.4);
+            color: white;
+        }
+
+        .ig-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
         }
 
         .copyright {
             color: var(--text-light);
             font-size: 13px;
+            border-top: 1px solid #eaeaea;
+            padding-top: 20px;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        /* Responsive Design */
+        /* --- Modal Vista Previa Website --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            background-color: var(--bg-light);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            color: var(--dark-blue);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .close-modal:hover {
+            background: rgba(220, 39, 67, 0.1);
+            color: #dc2743;
+        }
+
+        .modal-body {
+            flex: 1;
+            position: relative;
+            background-color: #f8fafc;
+        }
+
+        .iframe-loader {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        #website-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .hero-container {
                 flex-direction: column;
@@ -323,19 +502,23 @@
             .calendly-section h2 {
                 font-size: 28px;
             }
+            .modal-content {
+                width: 95%;
+                height: 90vh;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- Header Modernizado -->
     <header>
         <div class="container nav-container">
-            <!-- Asumiendo un logo genérico ya que no hay URL exacta del logo, se usa una URL del CDN estructurada como la tuya -->
-            <img src="https://cdn.eliteclinics.lat/logo.png" alt="EliteClinics" class="logo-img" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png'; this.alt='EliteClinics Logo'; this.style.border='1px solid #ccc';">
+            <a href="/">
+                <img src="https://cdn.eliteclinics.lat/logo.png" alt="EliteClinics" class="logo-img">
+            </a>
             <nav class="nav-links">
-                <a href="#servicios">Servicios</a>
-                <a href="#contacto">Contacto</a>
+                <a href="#contacto" class="btn-contacto">Agenda una llamada</a>
             </nav>
         </div>
     </header>
@@ -347,7 +530,7 @@
                 <h1>TRABAJA CON NOSOTROS</h1>
                 <p>EliteClinics es una agencia especializada en la detección y eliminación de los cuellos de botella más comunes que limitan el crecimiento y la rentabilidad de clínicas odontológicas, estéticas.</p>
                 
-                <!-- Tally Form Embed Wrapper -->
+                <!-- Tally Form Embed -->
                 <div class="tally-wrapper">
                     <iframe data-tally-src="https://tally.so/embed/mD8L8q?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1&formEventsForwarding=1" loading="lazy" width="100%" height="296" frameborder="0" marginheight="0" marginwidth="0" title="ELITECLINICS"></iframe>
                     <script>var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w,s.onload=v,s.onerror=v,d.body.appendChild(s);}</script>
@@ -355,18 +538,19 @@
             </div>
             
             <div class="hero-image">
-                <img src="https://cdn.eliteclinics.lat/brandon.png" alt="Brandon de EliteClinics">
+                <img src="https://cdn.eliteclinics.lat/brandon.jpg" alt="Brandon de EliteClinics">
             </div>
         </div>
     </section>
 
-    <!-- Trust Section -->
+    <!-- Trust Section Interactiva -->
     <section class="trust-section">
         <div class="container">
             <h2>Confían en el servicio</h2>
             <div class="trust-badges">
-                <span class="badge">odontoestetica.com.pa</span>
-                <span class="badge">drmorci.com</span>
+                <!-- Botones que abren el Popout -->
+                <button class="badge-btn" data-url="https://odontoestetica.com.pa">odontoestetica.com.pa</button>
+                <button class="badge-btn" data-url="https://drmorci.com">drmorci.com</button>
             </div>
         </div>
     </section>
@@ -375,9 +559,7 @@
     <section class="faq-section">
         <div class="container">
             <h2>Preguntas Frecuentes</h2>
-            
             <div class="faq-container">
-                <!-- FAQ Item 1 (Abierto por defecto) -->
                 <div class="faq-item active">
                     <button class="faq-question">
                         <span>¿Cuanto cuesta su servicio?</span>
@@ -387,8 +569,6 @@
                         <p>Nuestro servicio no tiene un costo único, varía de acuerdo a la capacidad y necesidades de su negocio.</p>
                     </div>
                 </div>
-
-                <!-- FAQ Item 2 -->
                 <div class="faq-item">
                     <button class="faq-question">
                         <span>¿Trabajan con clínicas en mi país?</span>
@@ -398,8 +578,6 @@
                         <p>Sí, trabajamos con clínicas a nivel internacional adaptando nuestras estrategias a tu mercado local.</p>
                     </div>
                 </div>
-
-                <!-- FAQ Item 3 -->
                 <div class="faq-item">
                     <button class="faq-question">
                         <span>¿Como me aseguran resultados?</span>
@@ -409,8 +587,6 @@
                         <p>A través de métricas claras, análisis constante de datos y sistemas probados específicos para el sector clínico.</p>
                     </div>
                 </div>
-
-                <!-- FAQ Item 4 -->
                 <div class="faq-item">
                     <button class="faq-question">
                         <span>¿Me dejaran en abandono si no pago?</span>
@@ -429,49 +605,119 @@
         <div class="container">
             <h2>AGENDA UNA LLAMADA</h2>
             <p>Selecciona un horario a continuación para nuestra sesión de 30 minutos.</p>
-            
-            <!-- Calendly inline widget begin -->
             <div class="calendly-wrapper">
                 <div class="calendly-inline-widget" data-url="https://calendly.com/brandonvqz/30min?hide_gdpr_banner=1&hide_event_type_details=1" style="min-width:320px;height:700px;"></div>
                 <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
             </div>
-            <!-- Calendly inline widget end -->
-
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
         <div class="container">
-            <!-- Usando el mismo logo del Header -->
-            <img src="https://cdn.eliteclinics.lat/logo.png" alt="EliteClinics" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png'; this.style.display='none';">
-            <p class="copyright">© 2024 EliteClinics, Inc.</p>
+            <img src="https://cdn.eliteclinics.lat/logo.png" alt="EliteClinics" class="footer-logo">
+            
+            <!-- Instagram Box Cool -->
+            <div class="instagram-box">
+                <p class="instagram-text">Conoce más del creador</p>
+                <a href="https://instagram.com/brandonvasp" target="_blank" rel="noopener noreferrer" class="ig-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                        <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
+                    </svg>
+                    Sigue a Brandon en Instagram
+                </a>
+            </div>
+
+            <p class="copyright">© 2026 EliteClinics, Inc. Todos los derechos reservados.</p>
         </div>
     </footer>
 
-    <!-- JS para el Acordeón (FAQ) -->
+    <!-- Modal para previsualización de sitios web -->
+    <div class="modal-overlay" id="preview-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="modal-url">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    Cargando...
+                </span>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="iframe-loader"></div>
+                <iframe id="website-frame" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Interactivos -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para Preguntas Frecuentes (Acordeón)
             const faqItems = document.querySelectorAll('.faq-item');
-
             faqItems.forEach(item => {
                 const questionBtn = item.querySelector('.faq-question');
-                
                 questionBtn.addEventListener('click', () => {
                     const isActive = item.classList.contains('active');
-                    
-                    // Cerrar todos los items
                     faqItems.forEach(faq => {
                         faq.classList.remove('active');
                         faq.querySelector('.faq-icon').textContent = '+';
                     });
-
-                    // Si el clickeado no estaba activo, abrirlo
                     if (!isActive) {
                         item.classList.add('active');
                         item.querySelector('.faq-icon').textContent = '−';
                     }
                 });
+            });
+
+            // Lógica para el Popout (Modal) de previsualización web
+            const modalOverlay = document.getElementById('preview-modal');
+            const iframe = document.getElementById('website-frame');
+            const modalUrlText = document.getElementById('modal-url');
+            const closeModalBtn = document.getElementById('close-modal');
+            const badgeButtons = document.querySelectorAll('.badge-btn');
+
+            // Abrir Modal
+            badgeButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    
+                    // Configurar título y URL
+                    modalUrlText.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>` + url.replace('https://', '');
+                    iframe.src = url;
+                    
+                    // Mostrar modal
+                    modalOverlay.style.display = 'flex';
+                    // Pequeño delay para que la transición CSS funcione
+                    setTimeout(() => {
+                        modalOverlay.classList.add('active');
+                    }, 10);
+                });
+            });
+
+            // Cerrar Modal
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+                setTimeout(() => {
+                    modalOverlay.style.display = 'none';
+                    iframe.src = ''; // Limpiar el iframe al cerrar para evitar reproducción de audio/video en fondo
+                }, 300);
+            }
+
+            closeModalBtn.addEventListener('click', closeModal);
+
+            // Cerrar al dar click fuera del recuadro blanco
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+
+            // Cerrar con la tecla ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                    closeModal();
+                }
             });
         });
     </script>
