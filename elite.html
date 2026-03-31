@@ -132,7 +132,7 @@
         /* --- Hero Section --- */
         .hero {
             background-color: var(--bg-light);
-            padding-top: 140px; /* Incrementado para compensar el menú flotante */
+            padding-top: 140px; 
             overflow: hidden;
         }
 
@@ -195,7 +195,6 @@
             overflow: hidden;
         }
 
-        /* Decoración de fondo sutil para la sección trust */
         .trust-section::before {
             content: '';
             position: absolute;
@@ -304,7 +303,6 @@
             gap: 10px;
         }
         
-        /* Pequeño acento visual para la pregunta */
         .faq-question::before {
             content: '';
             display: block;
@@ -319,7 +317,7 @@
             color: var(--text-light);
             font-size: 15px;
             line-height: 1.7;
-            padding-left: 34px; /* Alineado con el texto de la pregunta (icono 24px + gap 10px) */
+            padding-left: 34px; 
         }
 
         /* --- Calendly Section --- */
@@ -346,9 +344,7 @@
         .calendly-wrapper {
             max-width: 1000px;
             margin: 0 auto;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            /* Se ha removido el border-radius, overflow y box-shadow de la "Card" */
         }
 
         /* --- Footer & Instagram --- */
@@ -539,6 +535,18 @@
                 width: 100%;
                 justify-content: center;
             }
+            /* Modificaciones para estirar las tarjetas de los websites al 100% */
+            .trust-grid {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+                padding: 0 10px;
+            }
+            .website-card {
+                width: 100%;
+                justify-content: center;
+            }
+            /* Resto de estilos responsive */
             .calendly-section h2 {
                 font-size: 28px;
             }
@@ -576,7 +584,6 @@
             </div>
             
             <div class="hero-image">
-                <!-- Imagen actualizada a PNG -->
                 <img src="https://cdn.eliteclinics.lat/brandon.png" alt="Brandon de EliteClinics">
             </div>
         </div>
