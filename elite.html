@@ -74,29 +74,32 @@
             padding: 0 20px;
         }
 
-        /* --- Menú Moderno --- */
+        /* --- Menú Floating Pill --- */
         header {
-            background-color: rgba(255, 255, 255, 0.9);
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            transition: all 0.3s ease;
-        }
-
-        .nav-container {
+            padding: 12px 25px;
+            border-radius: 100px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .logo-img {
-            height: 50px;
+            height: 40px;
             object-fit: contain;
             transition: transform 0.3s ease;
+            display: block;
         }
 
         .logo-img:hover {
@@ -113,8 +116,8 @@
             background-color: var(--primary-blue);
             color: var(--white);
             font-weight: 600;
-            font-size: 15px;
-            padding: 10px 28px;
+            font-size: 14px;
+            padding: 10px 24px;
             border-radius: 50px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(42, 104, 166, 0.2);
@@ -129,7 +132,7 @@
         /* --- Hero Section --- */
         .hero {
             background-color: var(--bg-light);
-            padding-top: 60px;
+            padding-top: 140px; /* Incrementado para compensar el menú flotante */
             overflow: hidden;
         }
 
@@ -156,7 +159,7 @@
 
         .hero-content p {
             color: var(--text-light);
-            font-size: 15px;
+            font-size: 16px;
             margin-bottom: 30px;
         }
 
@@ -182,66 +185,91 @@
             object-position: bottom;
         }
 
-        /* --- Confían en el servicio --- */
+        /* --- Confían en el servicio (Sitios Web Modernos) --- */
         .trust-section {
             background-color: var(--primary-blue);
-            padding: 50px 0;
+            padding: 70px 0;
             text-align: center;
             color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decoración de fondo sutil para la sección trust */
+        .trust-section::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -20%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
         .trust-section h2 {
-            font-size: 24px;
-            margin-bottom: 30px;
+            font-size: 28px;
+            margin-bottom: 40px;
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        .trust-badges {
+        .trust-grid {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
             flex-wrap: wrap;
         }
 
-        .badge-btn {
-            background-color: var(--dark-blue);
+        .website-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: var(--white);
-            border: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-size: 14px;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        .badge-btn:hover {
-            background-color: #152642;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        /* Icono de enlace para los botones */
-        .badge-btn::before {
-            content: "👁️";
-            font-size: 16px;
+        .website-card svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--white);
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
         }
 
-        /* --- FAQ Section --- */
+        .website-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .website-card:hover svg {
+            opacity: 1;
+        }
+
+        /* --- FAQ Section (Siempre Abiertas) --- */
         .faq-section {
             background-color: var(--bg-light);
-            padding: 80px 0;
+            padding: 90px 0;
         }
 
         .faq-section h2 {
             text-align: center;
-            color: var(--primary-blue);
+            color: var(--dark-blue);
             font-size: 32px;
-            margin-bottom: 40px;
-            font-weight: 700;
+            margin-bottom: 50px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         .faq-container {
@@ -249,50 +277,49 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
 
         .faq-item {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            background-color: var(--white);
+            border-radius: 16px;
+            padding: 25px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid #f0f0f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(42, 104, 166, 0.08);
         }
 
         .faq-question {
-            background-color: var(--primary-blue);
-            color: var(--white);
-            padding: 20px 25px;
+            color: var(--dark-blue);
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 12px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            font-weight: 400;
-            font-size: 16px;
-            border: none;
-            width: 100%;
-            text-align: left;
-            transition: background-color 0.3s;
+            align-items: flex-start;
+            gap: 10px;
         }
-
-        .faq-question:hover {
-            background-color: #245b93;
+        
+        /* Pequeño acento visual para la pregunta */
+        .faq-question::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 24px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%232A68A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>') no-repeat center;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
         .faq-answer {
-            background-color: var(--white);
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .faq-answer p {
-            padding: 20px 25px;
             color: var(--text-light);
             font-size: 15px;
-        }
-
-        .faq-item.active .faq-answer {
-            max-height: 200px;
+            line-height: 1.7;
+            padding-left: 34px; /* Alineado con el texto de la pregunta (icono 24px + gap 10px) */
         }
 
         /* --- Calendly Section --- */
@@ -319,32 +346,36 @@
         .calendly-wrapper {
             max-width: 1000px;
             margin: 0 auto;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
 
         /* --- Footer & Instagram --- */
         footer {
             background-color: var(--bg-light);
-            padding: 60px 0 30px;
+            padding: 80px 0 30px;
             text-align: center;
         }
 
         .footer-logo {
-            height: 60px;
-            margin-bottom: 30px;
+            height: 50px;
+            margin-bottom: 35px;
+            opacity: 0.9;
         }
 
         .instagram-box {
-            margin: 0 auto 40px;
+            margin: 0 auto 50px;
             max-width: 400px;
         }
 
         .instagram-text {
             color: var(--text-light);
             font-size: 14px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .ig-btn {
@@ -352,21 +383,21 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            background-color: var(--primary-blue);
             color: var(--white);
             text-decoration: none;
-            padding: 14px 30px;
+            padding: 14px 32px;
             border-radius: 50px;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 15px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.2);
+            box-shadow: 0 4px 15px rgba(42, 104, 166, 0.2);
         }
 
         .ig-btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(220, 39, 67, 0.4);
-            color: white;
+            background-color: var(--dark-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 52, 85, 0.3);
         }
 
         .ig-btn svg {
@@ -379,7 +410,7 @@
             color: var(--text-light);
             font-size: 13px;
             border-top: 1px solid #eaeaea;
-            padding-top: 20px;
+            padding-top: 25px;
             max-width: 600px;
             margin: 0 auto;
         }
@@ -391,6 +422,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 9999;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -455,8 +487,8 @@
         }
 
         .close-modal:hover {
-            background: rgba(220, 39, 67, 0.1);
-            color: #dc2743;
+            background: rgba(42, 104, 166, 0.1);
+            color: var(--primary-blue);
         }
 
         .modal-body {
@@ -488,6 +520,14 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            header {
+                width: 95%;
+                padding: 10px 15px;
+            }
+            .btn-contacto {
+                padding: 8px 18px;
+                font-size: 13px;
+            }
             .hero-container {
                 flex-direction: column;
                 align-items: center;
@@ -511,16 +551,14 @@
 </head>
 <body>
 
-    <!-- Header Modernizado -->
+    <!-- Header Floating Pill -->
     <header>
-        <div class="container nav-container">
-            <a href="/">
-                <img src="https://cdn.eliteclinics.lat/logo.png" alt="EliteClinics" class="logo-img">
-            </a>
-            <nav class="nav-links">
-                <a href="#contacto" class="btn-contacto">Agenda una llamada</a>
-            </nav>
-        </div>
+        <a href="/">
+            <img src="https://cdn.eliteclinics.lat/logo.png" alt="EliteClinics" class="logo-img">
+        </a>
+        <nav class="nav-links">
+            <a href="#contacto" class="btn-contacto">Agenda una llamada</a>
+        </nav>
     </header>
 
     <!-- Hero Section -->
@@ -538,62 +576,65 @@
             </div>
             
             <div class="hero-image">
+                <!-- Imagen actualizada a PNG -->
                 <img src="https://cdn.eliteclinics.lat/brandon.png" alt="Brandon de EliteClinics">
             </div>
         </div>
     </section>
 
-    <!-- Trust Section Interactiva -->
+    <!-- Trust Section Interactiva y Elegante -->
     <section class="trust-section">
         <div class="container">
             <h2>Confían en el servicio</h2>
-            <div class="trust-badges">
-                <!-- Botones que abren el Popout -->
-                <button class="badge-btn" data-url="https://odontoestetica.com.pa">odontoestetica.com.pa</button>
-                <button class="badge-btn" data-url="https://drmorci.com">drmorci.com</button>
+            <div class="trust-grid">
+                <!-- Tarjetas Glassmorphism -->
+                <div class="website-card" data-url="https://odontoestetica.com.pa">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    odontoestetica.com.pa
+                </div>
+                <div class="website-card" data-url="https://drmorci.com">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    drmorci.com
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- FAQ Section -->
+    <!-- FAQ Section (Tarjetas abiertas siempre) -->
     <section class="faq-section">
         <div class="container">
             <h2>Preguntas Frecuentes</h2>
             <div class="faq-container">
-                <div class="faq-item active">
-                    <button class="faq-question">
-                        <span>¿Cuanto cuesta su servicio?</span>
-                        <span class="faq-icon">−</span>
-                    </button>
+                <div class="faq-item">
+                    <div class="faq-question">¿Cuanto cuesta su servicio?</div>
                     <div class="faq-answer">
-                        <p>Nuestro servicio no tiene un costo único, varía de acuerdo a la capacidad y necesidades de su negocio.</p>
+                        Nuestro servicio no tiene un costo único, varía de acuerdo a la capacidad y necesidades de su negocio.
                     </div>
                 </div>
                 <div class="faq-item">
-                    <button class="faq-question">
-                        <span>¿Trabajan con clínicas en mi país?</span>
-                        <span class="faq-icon">+</span>
-                    </button>
+                    <div class="faq-question">¿Trabajan con clínicas en mi país?</div>
                     <div class="faq-answer">
-                        <p>Sí, trabajamos con clínicas a nivel internacional adaptando nuestras estrategias a tu mercado local.</p>
+                        Sí, trabajamos con clínicas a nivel internacional adaptando nuestras estrategias a tu mercado local.
                     </div>
                 </div>
                 <div class="faq-item">
-                    <button class="faq-question">
-                        <span>¿Como me aseguran resultados?</span>
-                        <span class="faq-icon">+</span>
-                    </button>
+                    <div class="faq-question">¿Como me aseguran resultados?</div>
                     <div class="faq-answer">
-                        <p>A través de métricas claras, análisis constante de datos y sistemas probados específicos para el sector clínico.</p>
+                        A través de métricas claras, análisis constante de datos y sistemas probados específicos para el sector clínico.
                     </div>
                 </div>
                 <div class="faq-item">
-                    <button class="faq-question">
-                        <span>¿Me dejaran en abandono si no pago?</span>
-                        <span class="faq-icon">+</span>
-                    </button>
+                    <div class="faq-question">¿Me dejaran en abandono si no pago?</div>
                     <div class="faq-answer">
-                        <p>Mantenemos acuerdos claros desde el inicio. Si decides pausar el servicio, te entregamos el control de los activos trabajados según el contrato.</p>
+                        Mantenemos acuerdos claros desde el inicio. Si decides pausar el servicio, te entregamos el control de los activos trabajados según el contrato.
                     </div>
                 </div>
             </div>
@@ -617,7 +658,7 @@
         <div class="container">
             <img src="https://cdn.eliteclinics.lat/logo.png" alt="EliteClinics" class="footer-logo">
             
-            <!-- Instagram Box Cool -->
+            <!-- Instagram Box con diseño corporativo -->
             <div class="instagram-box">
                 <p class="instagram-text">Conoce más del creador</p>
                 <a href="https://instagram.com/brandonvasp" target="_blank" rel="noopener noreferrer" class="ig-btn">
@@ -649,36 +690,19 @@
         </div>
     </div>
 
-    <!-- Scripts Interactivos -->
+    <!-- Script del Modal -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Lógica para Preguntas Frecuentes (Acordeón)
-            const faqItems = document.querySelectorAll('.faq-item');
-            faqItems.forEach(item => {
-                const questionBtn = item.querySelector('.faq-question');
-                questionBtn.addEventListener('click', () => {
-                    const isActive = item.classList.contains('active');
-                    faqItems.forEach(faq => {
-                        faq.classList.remove('active');
-                        faq.querySelector('.faq-icon').textContent = '+';
-                    });
-                    if (!isActive) {
-                        item.classList.add('active');
-                        item.querySelector('.faq-icon').textContent = '−';
-                    }
-                });
-            });
-
             // Lógica para el Popout (Modal) de previsualización web
             const modalOverlay = document.getElementById('preview-modal');
             const iframe = document.getElementById('website-frame');
             const modalUrlText = document.getElementById('modal-url');
             const closeModalBtn = document.getElementById('close-modal');
-            const badgeButtons = document.querySelectorAll('.badge-btn');
+            const websiteCards = document.querySelectorAll('.website-card');
 
             // Abrir Modal
-            badgeButtons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
+            websiteCards.forEach(card => {
+                card.addEventListener('click', function(e) {
                     e.preventDefault();
                     const url = this.getAttribute('data-url');
                     
@@ -688,7 +712,6 @@
                     
                     // Mostrar modal
                     modalOverlay.style.display = 'flex';
-                    // Pequeño delay para que la transición CSS funcione
                     setTimeout(() => {
                         modalOverlay.classList.add('active');
                     }, 10);
@@ -700,20 +723,16 @@
                 modalOverlay.classList.remove('active');
                 setTimeout(() => {
                     modalOverlay.style.display = 'none';
-                    iframe.src = ''; // Limpiar el iframe al cerrar para evitar reproducción de audio/video en fondo
+                    iframe.src = ''; // Limpiar el iframe
                 }, 300);
             }
 
             closeModalBtn.addEventListener('click', closeModal);
 
-            // Cerrar al dar click fuera del recuadro blanco
             modalOverlay.addEventListener('click', function(e) {
-                if (e.target === modalOverlay) {
-                    closeModal();
-                }
+                if (e.target === modalOverlay) closeModal();
             });
 
-            // Cerrar con la tecla ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
                     closeModal();
